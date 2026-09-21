@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.itzikglanz87.fifatournament",
+        "sha256_cert_fingerprints": ["8A:54:E0:8F:B5:52:B5:C9:6B:6D:AE:EE:80:E7:BF:81:E7:E9:67:25:EC:5A:BF:63:68:92:14:E1:69:31:EB:8E"]
+      }
+    }]
