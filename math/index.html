@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2350c8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="מחברת חשבון">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>מחברת חשבון</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Assistant:wght@400;600;700&display=swap">
+<style>
+/* Layout: one narrow notebook column on squared paper. The question card is a notebook page with the red margin on the right; the number pad sits under it. */
+:root{
+  --paper:#f5f8fc; --grid:rgba(52,98,168,.11); --card:#ffffff; --ink:#1c2740; --muted:#5d6987;
+  --pen:#2350c8; --pen-soft:rgba(35,80,200,.10); --on-pen:#ffffff;
+  --red:#d6434a; --red-soft:rgba(214,67,74,.10);
+  --good:#13915a; --good-soft:rgba(19,145,90,.12);
+  --sun:#e59f0b; --line:rgba(28,39,64,.13); --shadow:0 1px 0 rgba(28,39,64,.06),0 8px 24px -12px rgba(28,39,64,.25);
+  --font-d:"Fredoka","Assistant",system-ui,sans-serif;
+  --font-b:"Assistant","Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#121826; --grid:rgba(140,170,230,.08); --card:#1a2233; --ink:#e8edf7; --muted:#9ba7c3;
+    --pen:#86a6ff; --pen-soft:rgba(134,166,255,.14); --on-pen:#0e1530;
+    --red:#ff7d82; --red-soft:rgba(255,125,130,.13);
+    --good:#4fd597; --good-soft:rgba(79,213,151,.13);
+    --sun:#ffc94a; --line:rgba(232,237,247,.13); --shadow:0 10px 30px -14px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121826; --grid:rgba(140,170,230,.08); --card:#1a2233; --ink:#e8edf7; --muted:#9ba7c3;
+  --pen:#86a6ff; --pen-soft:rgba(134,166,255,.14); --on-pen:#0e1530;
+  --red:#ff7d82; --red-soft:rgba(255,125,130,.13);
+  --good:#4fd597; --good-soft:rgba(79,213,151,.13);
+  --sun:#ffc94a; --line:rgba(232,237,247,.13); --shadow:0 10px 30px -14px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper); color:var(--ink); font-family:var(--font-b); font-size:17px; line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+#app{max-width:620px; margin:0 auto; padding-inline:16px; padding-block:14px 40px; direction:rtl}
+button{font:inherit; color:inherit; cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.m{font-family:var(--font-d); font-weight:500; white-space:nowrap}
+
+/* header */
+.top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-block-end:14px}
+.brand{font-family:var(--font-d); font-weight:600; font-size:1.25rem; letter-spacing:.01em}
+.brand small{display:block; font-family:var(--font-b); font-weight:600; font-size:.82rem; color:var(--muted)}
+.btn{border:1.5px solid var(--line); background:var(--card); border-radius:12px; padding:.5em 1em; font-weight:700; box-shadow:var(--shadow)}
+.btn:hover{border-color:var(--pen)}
+.btn.primary{background:var(--pen); color:var(--on-pen); border-color:var(--pen)}
+.btn.big{font-size:1.15rem; padding:.75em 1.4em; border-radius:14px}
+.btn.ghost{box-shadow:none; background:transparent}
+
+/* notebook page */
+.page{position:relative; background:var(--card); border-radius:18px; box-shadow:var(--shadow); padding:22px 54px 22px 22px; border:1px solid var(--line)}
+.page::before{content:""; position:absolute; inset-block:0; inset-inline-start:36px; width:2px; background:var(--red); opacity:.55}
+.tag{display:inline-flex; align-items:center; gap:.5em; font-weight:700; font-size:.85rem; color:var(--pen); background:var(--pen-soft); padding:.2em .8em; border-radius:999px}
+.tag.test{color:var(--red); background:var(--red-soft)}
+.qhead{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+.linkbtn{background:none; border:0; color:var(--pen); font-weight:700; padding:.3em .2em; text-decoration:underline; text-underline-offset:3px}
+
+.qbody{min-height:150px; display:flex; align-items:center; justify-content:center; padding-block:18px}
+.expr{direction:ltr; font-family:var(--font-d); font-weight:600; font-size:clamp(2.1rem,9vw,3.3rem); text-align:center; line-height:1.3; font-variant-numeric:tabular-nums}
+.story{font-size:1.28rem; line-height:1.75; text-align:start; width:100%}
+.story .ansline{margin-block-start:.6em; font-weight:700}
+.blank{display:inline-block; min-width:1.7em; padding:0 .15em; border-bottom:4px solid var(--pen); color:var(--pen); text-align:center; font-family:var(--font-d); font-weight:600; line-height:1.15; vertical-align:baseline}
+.story .blank{font-size:1.5rem; min-width:2.4em}
+.blank.empty::after{content:"?"; opacity:.28}
+.blank.right{color:var(--good); border-color:var(--good)}
+.blank.wrong{color:var(--red); border-color:var(--red)}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+.fb{min-height:2.2em; text-align:center; font-weight:700; font-size:1.1rem; border-radius:12px; padding:.3em .6em}
+.fb.good{color:var(--good); background:var(--good-soft)}
+.fb.try{color:var(--sun)}
+.fb.bad{color:var(--red); background:var(--red-soft)}
+.steps{background:var(--pen-soft); border-radius:14px; padding:12px 16px; margin-block-start:10px}
+.steps h3{margin:0 0 4px; font-size:1rem; color:var(--pen)}
+.steps ol{margin:0; padding-inline-start:1.3em}
+.steps li{padding-block:2px}
+.after{display:flex; justify-content:center; gap:10px; margin-block-start:12px; flex-wrap:wrap}
+
+.prog{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-block-start:14px; flex-wrap:wrap}
+.dots{display:flex; gap:6px; direction:rtl}
+.dot{width:16px; height:16px; border-radius:50%; border:2px solid var(--pen); opacity:.5}
+.dot.on{background:var(--pen); opacity:1}
+.prog .cap{font-size:.92rem; color:var(--muted); font-weight:600}
+.bar{height:8px; border-radius:99px; background:var(--pen-soft); overflow:hidden; flex:1; min-width:120px}
+.bar i{display:block; height:100%; background:var(--red); border-radius:99px; transition:width .3s}
+
+/* number pad */
+.pad{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-block-start:16px; direction:ltr}
+.k{font-family:var(--font-d); font-weight:600; font-size:1.7rem; min-height:60px; border-radius:16px; border:1.5px solid var(--line); background:var(--card); box-shadow:var(--shadow); touch-action:manipulation}
+.k:active{transform:translateY(1px)}
+.k.ok{background:var(--pen); color:var(--on-pen); border-color:var(--pen); font-size:1.25rem; font-family:var(--font-b); font-weight:700}
+.k.del{font-size:1.3rem}
+
+/* welcome */
+.hero h1{font-family:var(--font-d); font-weight:600; font-size:clamp(1.9rem,7vw,2.6rem); margin:0 0 6px; text-wrap:balance; line-height:1.15}
+.hero p{margin:0 0 14px; color:var(--muted); max-width:46ch}
+.sample{display:flex; gap:12px; flex-wrap:wrap; margin-block:14px 18px}
+.sample .expr{font-size:1.6rem; background:var(--pen-soft); border-radius:12px; padding:.15em .6em}
+.field{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.field input{font:inherit; font-size:1.2rem; padding:.55em .8em; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); min-width:0; flex:1 1 180px}
+.note{font-size:.9rem; color:var(--muted); margin-block-start:14px}
+
+/* help */
+.help h2{font-family:var(--font-d); font-weight:600; font-size:1.6rem; margin:6px 0 4px}
+.help .lead{color:var(--muted); margin:0 0 10px}
+.help p{margin:.4em 0; max-width:60ch}
+.ex{border:1.5px dashed var(--pen); border-radius:14px; padding:12px 16px; margin-block:14px}
+.ex .lab{font-size:.8rem; font-weight:700; letter-spacing:.06em; color:var(--pen)}
+.ex .exq{margin-block:4px 6px}
+.ex .exq .expr{font-size:1.8rem; text-align:start}
+.ex .exq .story{font-size:1.05rem}
+.ex ol{margin:0; padding-inline-start:1.3em}
+.filled{color:var(--good); font-family:var(--font-d)}
+.vids{display:flex; gap:10px; flex-wrap:wrap; margin-block:6px 4px}
+.vid{display:inline-flex; align-items:center; gap:.5em; text-decoration:none; font-weight:700; border-radius:12px; padding:.6em 1em; border:1.5px solid var(--line); color:var(--ink); background:var(--card)}
+.vid.yt{background:var(--red); color:var(--on-pen); border-color:var(--red)}
+.vid svg{width:18px; height:18px; flex:none}
+
+/* map */
+.map h2{font-family:var(--font-d); font-weight:600; font-size:1.5rem; margin:4px 0 12px}
+.lvls{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.lv{display:grid; grid-template-columns:2.2em 1fr auto; align-items:center; gap:10px; width:100%; text-align:start; border:1.5px solid var(--line); background:var(--card); border-radius:14px; padding:10px 12px}
+.lv[disabled]{cursor:default; opacity:.55}
+.lv.now{border-color:var(--pen); box-shadow:0 0 0 3px var(--pen-soft)}
+.lv .n{font-family:var(--font-d); font-weight:600; font-size:1.1rem; width:2em; height:2em; border-radius:50%; display:grid; place-items:center; background:var(--pen-soft); color:var(--pen)}
+.lv.done .n{background:var(--good-soft); color:var(--good)}
+.lv .t{min-width:0}
+.lv .t b{display:block}
+.lv .t span{font-size:.85rem; color:var(--muted)}
+.stars{color:var(--sun); letter-spacing:2px; white-space:nowrap; font-size:1.05rem}
+.stars .off{color:var(--line)}
+.maptools{display:flex; gap:10px; flex-wrap:wrap; margin-block-start:16px; align-items:center}
+.confirm{display:flex; gap:8px; align-items:center; flex-wrap:wrap; background:var(--red-soft); padding:8px 12px; border-radius:12px}
+
+/* overlay */
+.overlay{position:fixed; inset:0; background:rgba(10,16,32,.45); display:grid; place-items:center; padding:16px; z-index:10}
+.cele{background:var(--card); border-radius:22px; padding:28px 24px; text-align:center; max-width:380px; width:100%; box-shadow:var(--shadow)}
+.cele .big{font-size:3rem; color:var(--sun); letter-spacing:6px}
+.cele .big span{display:inline-block; animation:pop .5s both}
+.cele .big span:nth-child(2){animation-delay:.15s}.cele .big span:nth-child(3){animation-delay:.3s}
+.cele h2{font-family:var(--font-d); font-weight:600; margin:.2em 0}
+.cele p{color:var(--muted); margin:.3em 0 1em}
+@keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
+.toast{position:fixed; inset-inline:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); margin:auto; max-width:520px; background:var(--ink); color:var(--paper); padding:12px 16px; border-radius:14px; font-weight:700; text-align:center; z-index:9}
+@media (prefers-reduced-motion: reduce){ .shake,.cele .big span{animation:none} .bar i{transition:none} }
+@media (max-width:420px){ .page{padding:18px 44px 18px 16px} .page::before{inset-inline-start:28px} }
+</style>
+
+<div id="app" dir="rtl" lang="he">
+  <header class="top">
+    <div class="brand" id="brand">מחברת חשבון<small>כיתה ג׳</small></div>
+    <button class="btn" id="mapBtn" hidden>מפת השלבים</button>
+  </header>
+
+  <!-- welcome -->
+  <section id="welcome" class="page hero">
+    <h1>שלום! בוא נגלה כמה אתה כבר יודע</h1>
+    <p>נתחיל בבדיקת רמה קצרה. כל פעם שתצליח, נעלה שלב. אם משהו קשה, יחכה לך שיעור עזר עם סרטון הסבר.</p>
+    <div class="sample" aria-label="דוגמאות לתרגילים">
+      <span class="expr" dir="ltr">38 + 47</span>
+      <span class="expr" dir="ltr">7 × 8</span>
+      <span class="expr" dir="ltr">17 : 5</span>
+      <span class="expr" dir="ltr">3 + 4 × 2</span>
+    </div>
+    <label for="nameIn" style="font-weight:700;display:block;margin-bottom:6px">איך קוראים לך?</label>
+    <div class="field">
+      <input id="nameIn" type="text" autocomplete="off" maxlength="20" placeholder="השם שלך">
+      <button class="btn primary big" id="startBtn">מתחילים בבדיקת רמה</button>
+    </div>
+    <p class="note">16 שלבים: חיבור וחיסור, לוח הכפל, חילוק, ערך המקום, שברים, סדר פעולות ובעיות מילוליות.</p>
+  </section>
+
+  <!-- quiz -->
+  <section id="quiz" hidden>
+    <div class="page">
+      <div class="qhead">
+        <span class="tag" id="qTag"></span>
+        <button class="linkbtn" id="helpBtn">צריך עזרה?</button>
+      </div>
+      <div class="qbody" id="qBody"></div>
+      <div class="fb" id="fb" aria-live="polite"></div>
+      <div id="reveal" hidden>
+        <div class="steps"><h3>ככה פותרים:</h3><ol id="stepsList"></ol></div>
+        <div class="after"><button class="btn primary" id="nextBtn">לתרגיל הבא</button><button class="btn" id="lessonBtn">לשיעור העזר</button></div>
+      </div>
+      <div class="prog" id="prog"></div>
+    </div>
+    <div class="pad" id="pad">
+      <button class="k" data-k="1">1</button><button class="k" data-k="2">2</button><button class="k" data-k="3">3</button>
+      <button class="k" data-k="4">4</button><button class="k" data-k="5">5</button><button class="k" data-k="6">6</button>
+      <button class="k" data-k="7">7</button><button class="k" data-k="8">8</button><button class="k" data-k="9">9</button>
+      <button class="k del" data-k="back" aria-label="מחיקה">⌫</button><button class="k" data-k="0">0</button><button class="k ok" data-k="ok">בדיקה</button>
+    </div>
+  </section>
+
+  <!-- placement result -->
+  <section id="result" class="page hero" hidden>
+    <span class="tag test">בדיקת הרמה הסתיימה</span>
+    <h1 id="resTitle" style="margin-top:10px"></h1>
+    <p id="resText"></p>
+    <button class="btn primary big" id="resGo">מתחילים לתרגל</button>
+  </section>
+
+  <!-- help lesson -->
+  <section id="help" class="page help" hidden>
+    <span class="tag">שיעור עזר</span>
+    <h2 id="helpTitle"></h2>
+    <p class="lead" id="helpLead"></p>
+    <div id="helpBody"></div>
+    <div class="ex"><div class="lab">דוגמה פתורה</div><div id="helpEx"></div></div>
+    <p style="font-weight:700;margin-bottom:4px">רוצה לראות הסבר בסרטון?</p>
+    <div class="vids">
+      <a class="vid yt" id="ytLink" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>לסרטון ההסבר</a>
+      <a class="vid" id="gLink" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>עוד סרטונים על הנושא</a>
+    </div>
+    <p class="note" id="vidTitle" style="margin-top:6px"></p>
+    <div class="after" style="justify-content:flex-start;margin-top:18px"><button class="btn primary big" id="helpDone">הבנתי, בוא נתרגל</button></div>
+  </section>
+
+  <!-- map -->
+  <section id="map" class="page map" hidden>
+    <h2 id="mapTitle">מפת השלבים</h2>
+    <ol class="lvls" id="lvls"></ol>
+    <div class="maptools">
+      <button class="btn primary" id="mapBack">חזרה לתרגול</button>
+      <button class="btn ghost" id="retestBtn">בדיקת רמה מחדש</button>
+    </div>
+    <div class="confirm" id="retestConfirm" hidden style="margin-top:10px">
+      <span>הבדיקה תתחיל מהשלב הראשון והכוכבים יתאפסו.</span>
+      <button class="btn primary" id="retestYes">כן, להתחיל</button>
+      <button class="btn ghost" id="retestNo">ביטול</button>
+    </div>
+    <p class="note" id="saveNote"></p>
+  </section>
+</div>
+
+<div class="overlay" id="cele" hidden>
+  <div class="cele" role="dialog" aria-modal="true" aria-labelledby="celeTitle">
+    <div class="big" id="celeStars"></div>
+    <h2 id="celeTitle">עברת את השלב!</h2>
+    <p id="celeMsg"></p>
+    <button class="btn primary big" id="celeGo">ממשיכים</button>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[rand(0,a.length-1)];
+const m=s=>`<bdi dir="ltr" class="m">${s}</bdi>`;
+const mults=(f,n)=>Array.from({length:n},(_,i)=>f*(i+1));
+const B='{B}';
+const GOAL=8;
+/* one checked explanation video per level (Hebrew, for kids) */
+const VIDEOS={
+ add20:{id:'3r3QTD66-WY',title:'חיבור עד 20',by:'וואלה! סקול'},
+ sub20:{id:'qrS1usT0QJA',title:'טריק לפתרון תרגילי חשבון עד 20',by:'שלומית לויט - עץ החשיבה'},
+ add100:{id:'mNfOSN6WmOc',title:'איך עושים חיבור וחיסור מספרים דו ספרתיים',by:'et-lilmod'},
+ sub100:{id:'MBGL2p9VLjk',title:'חשבון ב - חיבור וחיסור עד 100',by:'אני10'},
+ add100c:{id:'Htd80imjZvg',title:'חיבור בטור עם המרה - הסבר',by:'אני10'},
+ sub100b:{id:'r0QLZ915E50',title:'איך עושים חיסור עם המרה - שיטה קלה',by:'et-lilmod'},
+ mul1:{id:'pCMLAs-d5eo',title:'כיתה ב - כפל - הסבר',by:'אני10'},
+ mul:{id:'Y9hVbLeIJHg',title:'לוח הכפל',by:'עשר אצבעות (Matific)'},
+ div:{id:'8LIc5wnCTpQ',title:'הקשר בין כפל וחילוק',by:'הדס פוקס'},
+ place:{id:'RfqhORUdejE',title:'המספרים עד 1000',by:'וואלה! סקול'},
+ as1000:{id:'6W9jWWmlBnY',title:'חיבור וחיסור של מאות ואלפים',by:'אני10'},
+ multens:{id:'4h-RaPhvhpk',title:'כיתה ג - כפל בעשרות',by:'אני10'},
+ frac:{id:'-Z2rrBO-e5M',title:'שבר כחלק מכמות',by:'עשר אצבעות (Matific)'},
+ divrem:{id:'h-JM_hSTgZY',title:'חילוק עם שארית',by:'קרנפים לומדים חשבון'},
+ order:{id:'uV_1H7-cmFA',title:'מה זה סדר פעולות חשבון?',by:'et-lilmod'},
+ words:{id:'IsXHujh4WmM',title:'איך פותרים בעיות מילוליות',by:'הדס פוקס'},
+};
+const PRAISE=['כל הכבוד!','מצוין!','יפה מאוד!','בדיוק!','אלוף!','נכון!','מעולה!','איזה יופי!'];
+
+function jumpAdd(x,u){ // x + u, crossing a ten if needed
+  const need=10-x%10;
+  if(u>need && need<10) return [`משלימים לעשרת: ${m(`${x} + ${need} = ${x+need}`)}`, `נשאר להוסיף עוד ${u-need}: ${m(`${x+need} + ${u-need} = ${x+u}`)}`];
+  return [`מוסיפים את היחידות: ${m(`${x} + ${u} = ${x+u}`)}`];
+}
+
+const WORDS=[
+ ()=>{const a=rand(15,60),b=rand(8,39);return{t:`לנועה היו ${a} מדבקות. היא קיבלה מחברה עוד ${b} מדבקות. כמה מדבקות יש לנועה עכשיו?`,ans:a+b,ex:`${a} + ${b} = ${a+b}`,hint:'"קיבלה עוד": הכמות גדלה, לכן זה חיבור.'}},
+ ()=>{const a=rand(25,60),b=rand(6,a-5);return{t:`באוטובוס ישבו ${a} ילדים. בתחנה ירדו ${b} ילדים. כמה ילדים נשארו באוטובוס?`,ans:a-b,ex:`${a} − ${b} = ${a-b}`,hint:'"ירדו" ו"נשארו": הכמות קטנה, לכן זה חיסור.'}},
+ ()=>{const a=rand(3,9),b=rand(3,9);return{t:`ליואב יש ${a} קופסאות, ובכל קופסה ${b} עפרונות. כמה עפרונות יש ליואב בסך הכול?`,ans:a*b,ex:`${a} × ${b} = ${a*b}`,hint:'"בכל קופסה" יש אותו מספר: קבוצות שוות, לכן זה כפל.'}},
+ ()=>{const b=rand(3,8),k=rand(3,9);return{t:`המורה חילקה ${b*k} סוכריות שווה בשווה בין ${b} ילדים. כמה סוכריות קיבל כל ילד?`,ans:k,ex:`${b*k} : ${b} = ${k}`,hint:'"שווה בשווה": מחלקים לחלקים שווים, לכן זה חילוק.'}},
+ ()=>{const a=rand(40,100),b=rand(12,a-8);return{t:`לאיתי היו ${a} שקלים. הוא קנה כדור ב-${b} שקלים. כמה שקלים נשארו לאיתי?`,ans:a-b,ex:`${a} − ${b} = ${a-b}`,hint:'הוא שילם, אז הכסף ירד. "נשארו" זה חיסור.'}},
+ ()=>{const a=rand(18,55),b=rand(15,44);return{t:`בגינה פורחים ${a} ורדים אדומים ו-${b} ורדים לבנים. כמה ורדים יש בגינה בסך הכול?`,ans:a+b,ex:`${a} + ${b} = ${a+b}`,hint:'"בסך הכול": מצרפים את שתי הקבוצות, לכן זה חיבור.'}},
+ ()=>{const b=rand(3,6),k=rand(3,8);return{t:`${b*k} ילדים התחלקו לקבוצות, ובכל קבוצה ${b} ילדים. כמה קבוצות יצאו?`,ans:k,ex:`${b*k} : ${b} = ${k}`,hint:'מחלקים את הילדים לקבוצות שוות, לכן זה חילוק.'}},
+ ()=>{const a=rand(4,8),b=rand(4,9);return{t:`בכיתה יש ${a} שורות של כיסאות, ובכל שורה ${b} כיסאות. כמה כיסאות יש בכיתה?`,ans:a*b,ex:`${a} × ${b} = ${a*b}`,hint:'כמה שורות, ובכל אחת אותו מספר: זה כפל.'}},
+ ()=>{const a=rand(20,45),b=rand(8,30);return{t:`לדניאל יש ${a} גולות. לאח שלו יש ${b} גולות יותר ממנו. כמה גולות יש לאח?`,ans:a+b,ex:`${a} + ${b} = ${a+b}`,hint:'"יותר ממנו": לאח יש את מה שיש לדניאל ועוד, לכן זה חיבור.'}},
+];
+
+const LEVELS=[
+{id:'add20',title:'חיבור עד 20',
+ lesson:{body:[`כשמחברים עד 20, הכי קל להתחיל מהמספר הגדול ולהוסיף לו את הקטן.`,`טריק חשוב: משלימים קודם ל-10, ואז מוסיפים את מה שנשאר. למשל ${m('8 + 5')}: מ-8 ל-10 צריך 2, ומה-5 נשאר עוד 3. אז ${m('10 + 3 = 13')}.`],q:'חיבור עד 20 השלמה לעשר לילדים'},
+ gen(){const a=rand(3,12),b=rand(2,Math.min(9,20-a));return{ltr:1,html:`${a} + ${b} = ${B}`,ans:a+b,a,b}},
+ explain({a,b}){const big=Math.max(a,b),s=Math.min(a,b);
+  if(big<10&&big+s>10){const need=10-big;return[`מתחילים מהמספר הגדול: ${big}`,`משלימים ל-10: ${m(`${big} + ${need} = 10`)}`,`מתוך ה-${s} נשאר עוד ${s-need}`,m(`10 + ${s-need} = ${a+b}`)]}
+  return[`מתחילים מהמספר הגדול: ${big}`,`סופרים קדימה עוד ${s}: ${m(Array.from({length:s},(_,i)=>big+i+1).join(', '))}`,`התשובה: ${m(`${a} + ${b} = ${a+b}`)}`]}},
+{id:'sub20',title:'חיסור עד 20',
+ lesson:{body:[`בחיסור עד 20 אפשר "לרדת דרך ה-10": קודם מורידים עד 10, ואחר כך את השאר.`,`למשל ${m('13 − 5')}: מורידים 3 ומגיעים ל-10, ואז מורידים עוד 2 ומגיעים ל-8.`],q:'חיסור עד 20 דרך העשר לילדים'},
+ gen(){const a=rand(11,19),b=rand(2,9);return{ltr:1,html:`${a} − ${b} = ${B}`,ans:a-b,a,b}},
+ explain({a,b}){const u=a-10;
+  if(b>u)return[`מורידים קודם ${u} כדי להגיע ל-10: ${m(`${a} − ${u} = 10`)}`,`צריך להוריד ${b} בסך הכול, אז נשאר להוריד עוד ${b-u}`,m(`10 − ${b-u} = ${a-b}`)];
+  return[`מפרקים: ${m(`${a} = 10 + ${u}`)}`,`מורידים מהיחידות: ${m(`${u} − ${b} = ${u-b}`)}`,`ומחזירים את ה-10: ${m(`10 + ${u-b} = ${a-b}`)}`]}},
+{id:'add100',title:'חיבור עד 100 בלי המרה',
+ lesson:{body:[`מספר דו-ספרתי בנוי מעשרות ויחידות: 34 זה 3 עשרות ו-4 יחידות.`,`מחברים עשרות עם עשרות, יחידות עם יחידות, ובסוף מצרפים.`],q:'חיבור דו ספרתי בלי המרה כיתה ב'},
+ gen(){const t1=rand(1,7),t2=rand(1,8-t1),u1=rand(0,8),u2=rand(0,9-u1),a=t1*10+u1,b=t2*10+u2;return{ltr:1,html:`${a} + ${b} = ${B}`,ans:a+b,a,b,t1,t2,u1,u2}},
+ explain({a,b,t1,t2,u1,u2}){return[`מפרקים: ${m(`${a} = ${t1*10} + ${u1}`)} וגם ${m(`${b} = ${t2*10} + ${u2}`)}`,`עשרות עם עשרות: ${m(`${t1*10} + ${t2*10} = ${(t1+t2)*10}`)}`,`יחידות עם יחידות: ${m(`${u1} + ${u2} = ${u1+u2}`)}`,`מצרפים: ${m(`${(t1+t2)*10} + ${u1+u2} = ${a+b}`)}`]}},
+{id:'sub100',title:'חיסור עד 100 בלי פריטה',
+ lesson:{body:[`גם בחיסור מפרקים לעשרות ויחידות: מורידים עשרות מעשרות ויחידות מיחידות.`,`למשל ${m('57 − 23')}: עשרות ${m('50 − 20 = 30')}, יחידות ${m('7 − 3 = 4')}, ביחד 34.`],q:'חיסור דו ספרתי בלי פריטה כיתה ב'},
+ gen(){const t1=rand(3,9),t2=rand(1,t1-1),u1=rand(1,9),u2=rand(0,u1),a=t1*10+u1,b=t2*10+u2;return{ltr:1,html:`${a} − ${b} = ${B}`,ans:a-b,a,b,t1,t2,u1,u2}},
+ explain({a,b,t1,t2,u1,u2}){return[`מפרקים: ${m(`${a} = ${t1*10} + ${u1}`)} וגם ${m(`${b} = ${t2*10} + ${u2}`)}`,`עשרות: ${m(`${t1*10} − ${t2*10} = ${(t1-t2)*10}`)}`,`יחידות: ${m(`${u1} − ${u2} = ${u1-u2}`)}`,`מצרפים: ${m(`${(t1-t2)*10} + ${u1-u2} = ${a-b}`)}`]}},
+{id:'add100c',title:'חיבור עד 100 עם המרה',
+ lesson:{body:[`כשהיחידות ביחד עוברות את 10, נוצרת עוד עשרת. דרך נוחה היא לקפוץ:`,`קודם מוסיפים את העשרות, ואחר כך את היחידות דרך העשרת השלמה. למשל ${m('38 + 47')}: ${m('38 + 40 = 78')}, ${m('78 + 2 = 80')}, ${m('80 + 5 = 85')}.`],q:'חיבור עם המרה עד 100 לילדים'},
+ gen(){const u1=rand(2,9),u2=rand(10-u1,9),t1=rand(1,7),t2=rand(1,8-t1),a=t1*10+u1,b=t2*10+u2;return{ltr:1,html:`${a} + ${b} = ${B}`,ans:a+b,a,b,t2,u2}},
+ explain({a,b,t2,u2}){const x=a+t2*10;return[`משאירים את ${a} שלם, ומפרקים את ${b} ל-${m(`${t2*10} + ${u2}`)}`,`קופצים קודם בעשרות: ${m(`${a} + ${t2*10} = ${x}`)}`,...jumpAdd(x,u2)]}},
+{id:'sub100b',title:'חיסור עד 100 עם פריטה',
+ lesson:{body:[`כשאין מספיק יחידות להוריד, עושים את זה בקפיצות: קודם מורידים את העשרות, ואחר כך את היחידות דרך העשרת השלמה.`,`למשל ${m('62 − 38')}: ${m('62 − 30 = 32')}, ${m('32 − 2 = 30')}, ${m('30 − 6 = 24')}.`],q:'חיסור עם פריטה עד 100 לילדים'},
+ gen(){const t1=rand(2,9),u1=rand(0,8),u2=rand(u1+1,9),t2=rand(1,t1-1),a=t1*10+u1,b=t2*10+u2;return{ltr:1,html:`${a} − ${b} = ${B}`,ans:a-b,a,b,t2,u1,u2}},
+ explain({a,b,t2,u1,u2}){const x=a-t2*10,s=[`מפרקים את ${b} ל-${m(`${t2*10} + ${u2}`)}`,`מורידים קודם את העשרות: ${m(`${a} − ${t2*10} = ${x}`)}`];
+  if(u1>0){s.push(`מורידים ${u1} כדי להגיע לעשרת שלמה: ${m(`${x} − ${u1} = ${x-u1}`)}`);s.push(`נשאר להוריד עוד ${u2-u1}: ${m(`${x-u1} − ${u2-u1} = ${a-b}`)}`)}
+  else s.push(`מורידים את היחידות: ${m(`${x} − ${u2} = ${a-b}`)}`);return s}},
+{id:'mul1',title:'כפל ב-2, ב-5 וב-10',
+ lesson:{body:[`כפל הוא חיבור של קבוצות שוות. ${m('4 × 5')} זה 4 קבוצות של 5, ואפשר לספור בקפיצות: ${m('5, 10, 15, 20')}.`,`בכפל ב-10 פשוט מוסיפים 0 בסוף: ${m('7 × 10 = 70')}.`],q:'לוח הכפל 2 5 10 לילדים'},
+ gen(){const f=pick([2,5,10]),n=rand(1,10);const[a,b]=Math.random()<.5?[n,f]:[f,n];return{ltr:1,html:`${a} × ${b} = ${B}`,ans:a*b,f,n,a,b}},
+ explain({f,n,a,b}){if(f===10)return[`בכפל ב-10 מוסיפים 0 בסוף המספר`,m(`${n} × 10 = ${n*10}`)];return[`${m(`${a} × ${b}`)} זה ${n} קבוצות של ${f}`,`סופרים בקפיצות של ${f}, ${n} פעמים: ${m(mults(f,n).join(', '))}`,`התשובה: ${a*b}`]}},
+{id:'mul',title:'לוח הכפל המלא',
+ lesson:{body:[`את לוח הכפל כדאי לזכור בעל פה, אבל כשנתקעים יש טריק: מפרקים לחלקים קלים.`,`${m('7 × 8')} זה ${m('7 × 5')} ועוד ${m('7 × 3')}, כלומר ${m('35 + 21 = 56')}. וגם הסדר לא משנה: ${m('3 × 8')} זה כמו ${m('8 × 3')}.`],q:'לוח הכפל טריקים לילדים'},
+ gen(){const a=rand(2,10),b=rand(2,10);return{ltr:1,html:`${a} × ${b} = ${B}`,ans:a*b,a,b}},
+ explain({a,b}){const easy=[2,5,10];
+  if(easy.includes(a)||easy.includes(b)||(a<=5&&b<=5)){const f=easy.includes(a)?a:easy.includes(b)?b:Math.max(a,b),n=f===a?b:a;return[`${m(`${a} × ${b}`)} זה ${n} קבוצות של ${f}`,`סופרים בקפיצות של ${f}: ${m(mults(f,n).join(', '))}`,`התשובה: ${a*b}`]}
+  const f=Math.min(a,b),n=Math.max(a,b);return[`מפרקים את ${n} ל-${m(`5 + ${n-5}`)}`,m(`${f} × 5 = ${f*5}`),m(`${f} × ${n-5} = ${f*(n-5)}`),`מחברים: ${m(`${f*5} + ${f*(n-5)} = ${a*b}`)}`]}},
+{id:'div',title:'חילוק',
+ lesson:{body:[`חילוק הוא ההפך של כפל. כשרואים ${m('24 : 6')} שואלים: איזה מספר כפול 6 נותן 24?`,`התשובה היא 4, כי ${m('6 × 4 = 24')}.`],q:'חילוק פעולה הפוכה לכפל כיתה ג'},
+ gen(){const b=rand(2,10),k=rand(2,10);return{ltr:1,html:`${b*k} : ${b} = ${B}`,ans:k,a:b*k,b}},
+ explain({a,b,ans}){return[`שואלים: ${m(`${b} × ? = ${a}`)}`,`סופרים בקפיצות של ${b} עד ${a}: ${m(mults(b,ans).join(', '))}`,`ספרנו ${ans} קפיצות, אז ${m(`${a} : ${b} = ${ans}`)}`]}},
+{id:'place',title:'ערך המקום עד 1000',
+ lesson:{body:[`במספר תלת-ספרתי יש מאות, עשרות ויחידות.`,`ב-347 יש 3 מאות, 4 עשרות ו-7 יחידות, כלומר ${m('347 = 300 + 40 + 7')}.`],q:'ערך המקום מאות עשרות יחידות כיתה ג'},
+ gen(){const n=rand(101,999),h=Math.floor(n/100),t=Math.floor(n/10)%10,u=n%10;
+  if(Math.random()<.5){const p=pick([['מאות',h],['עשרות',t],['יחידות',u]]);return{html:`מה ספרת ה${p[0]} במספר ${m(n)}?<div class="ansline">תשובה: ${B}</div>`,ans:p[1],n,h,t,u,pos:p[0]}}
+  const k=rand(0,2),parts=[h*100,t*10,u],ans=parts[k];parts[k]=B;return{ltr:1,html:`${n} = ${parts.join(' + ')}`,ans,n,h,t,u}},
+ explain({n,h,t,u,pos,ans}){const s=[`ב-${n} יש ${h} מאות, ${t} עשרות ו-${u} יחידות`,m(`${n} = ${h*100} + ${t*10} + ${u}`)];if(pos)s.push(`ספרת ה${pos} היא ${ans}`);else s.push(`החלק החסר הוא ${ans}`);return s}},
+{id:'as1000',title:'חיבור וחיסור עד 1000',
+ lesson:{body:[`כשמחברים או מחסרים עשרות שלמות, אפשר לחשוב בעשרות.`,`${m('340 + 250')} זה 34 עשרות ועוד 25 עשרות, כלומר 59 עשרות, שזה 590.`],q:'חיבור וחיסור עד 1000 כיתה ג'},
+ gen(){if(Math.random()<.5){const x=rand(12,70),y=rand(11,99-x);return{ltr:1,html:`${x*10} + ${y*10} = ${B}`,ans:(x+y)*10,x,y,op:'+'}}const x=rand(25,99),y=rand(11,x-3);return{ltr:1,html:`${x*10} − ${y*10} = ${B}`,ans:(x-y)*10,x,y,op:'−'}},
+ explain({x,y,op,ans}){const r=ans/10;return[`${x*10} זה ${x} עשרות, ו-${y*10} זה ${y} עשרות`,`${m(`${x} ${op} ${y} = ${r}`)} עשרות`,`${r} עשרות = ${ans}`]}},
+{id:'multens',title:'כפל בעשרות שלמות',
+ lesson:{body:[`${m('30 × 4')} זה 3 עשרות כפול 4, כלומר 12 עשרות, שזה 120.`,`פותרים את התרגיל הקטן (${m('3 × 4')}) ומוסיפים 0 בסוף.`],q:'כפל בעשרות שלמות כיתה ג'},
+ gen(){const t=rand(2,9),b=rand(2,9);const[x,y]=Math.random()<.5?[t*10,b]:[b,t*10];return{ltr:1,html:`${x} × ${y} = ${B}`,ans:t*b*10,t,b}},
+ explain({t,b,ans}){return[`${t*10} זה ${t} עשרות`,`פותרים את התרגיל הקטן: ${m(`${t} × ${b} = ${t*b}`)}`,`אז יש ${t*b} עשרות, ומוסיפים 0: ${ans}`]}},
+{id:'frac',title:'חצי, שליש ורבע',
+ lesson:{body:[`שבר הוא חלק משלם. חצי זה לחלק ל-2 חלקים שווים, שליש ל-3 ורבע ל-4.`,`כדי למצוא רבע מ-20 מחלקים: ${m('20 : 4 = 5')}.`],q:'חצי רבע שליש של כמות כיתה ג'},
+ gen(){const[name,d]=pick([['חצי',2],['רבע',4],['שליש',3]]),k=rand(2,10),n=d*k;return{html:`כמה זה ${name} מ-${n}?<div class="ansline">תשובה: ${B}</div>`,ans:k,name,d,n}},
+ explain({name,d,n,ans}){return[`${name} זה לחלק ל-${d} חלקים שווים ולקחת חלק אחד`,m(`${n} : ${d} = ${ans}`),`אז ${name} מ-${n} הוא ${ans}`]}},
+{id:'divrem',title:'חילוק עם שארית',
+ lesson:{body:[`לפעמים החילוק לא יוצא שלם ונשארת שארית. ב-${m('17 : 5')} מחפשים בכפולות של 5 (${m('5, 10, 15')}) את הכי גדולה שלא עוברת את 17: זו 15.`,`5 נכנס 3 פעמים ונשארים 2. כלומר ${m('17 : 5 = 3')} ושארית 2. השארית תמיד קטנה מהמספר שמחלקים בו.`],q:'חילוק עם שארית כיתה ג'},
+ gen(){const b=rand(2,9),k=rand(2,9),r=rand(1,b-1),a=b*k+r;
+  if(Math.random()<.5)return{html:`${m(`${a} : ${b} = `)}${B} ושארית ${r}`,ans:k,a,b,k,r,big:1};
+  return{html:`${m(`${a} : ${b} = ${k}`)} ושארית ${B}`,ans:r,a,b,k,r,big:1}},
+ explain({a,b,k,r}){return[`מחפשים בכפולות של ${b} את הכי גדולה שלא עוברת את ${a}: ${m(mults(b,k).join(', '))}`,m(`${b} × ${k} = ${b*k}`),`כמה נשאר? ${m(`${a} − ${b*k} = ${r}`)}`,`לכן ${m(`${a} : ${b} = ${k}`)} ושארית ${r}`]}},
+{id:'order',title:'סדר פעולות',
+ lesson:{body:[`בתרגיל עם כמה פעולות יש סדר: קודם מה שבסוגריים, אחר כך כפל וחילוק, ובסוף חיבור וחיסור.`,`למשל ${m('3 + 4 × 2')}: קודם ${m('4 × 2 = 8')}, ואז ${m('3 + 8 = 11')}.`],q:'סדר פעולות חשבון כיתה ג'},
+ gen(){const kind=rand(0,3);
+  if(kind===0){const a=rand(2,20),b=rand(2,9),c=rand(2,9);return{ltr:1,html:`${a} + ${b} × ${c} = ${B}`,ans:a+b*c,kind,a,b,c}}
+  if(kind===1){const a=rand(2,9),b=rand(2,9),c=rand(1,Math.min(20,a*b-1));return{ltr:1,html:`${a} × ${b} − ${c} = ${B}`,ans:a*b-c,kind,a,b,c}}
+  if(kind===2){const a=rand(1,7),b=rand(1,9-a),c=rand(2,9);return{ltr:1,html:`(${a} + ${b}) × ${c} = ${B}`,ans:(a+b)*c,kind,a,b,c}}
+  const b=rand(2,5),c=rand(2,9),a=b*c+rand(1,30);return{ltr:1,html:`${a} − ${b} × ${c} = ${B}`,ans:a-b*c,kind,a,b,c}},
+ explain({kind,a,b,c,ans}){const rule='כפל וחילוק עושים לפני חיבור וחיסור';
+  if(kind===0)return[rule,`קודם הכפל: ${m(`${b} × ${c} = ${b*c}`)}`,`ואז: ${m(`${a} + ${b*c} = ${ans}`)}`];
+  if(kind===1)return[rule,`קודם הכפל: ${m(`${a} × ${b} = ${a*b}`)}`,`ואז: ${m(`${a*b} − ${c} = ${ans}`)}`];
+  if(kind===2)return['מה שבסוגריים עושים קודם',m(`${a} + ${b} = ${a+b}`),`ואז: ${m(`${a+b} × ${c} = ${ans}`)}`];
+  return[rule,`קודם הכפל: ${m(`${b} × ${c} = ${b*c}`)}`,`ואז: ${m(`${a} − ${b*c} = ${ans}`)}`]}},
+{id:'words',title:'בעיות מילוליות',
+ lesson:{body:[`בבעיה מילולית קוראים לאט ושואלים: מה יודעים? ומה שואלים?`,`מילים כמו "עוד" ו"בסך הכול" רומזות על חיבור, "נשארו" ו"ירדו" על חיסור, "בכל אחד" על כפל, ו"שווה בשווה" על חילוק.`],q:'בעיות מילוליות חשבון כיתה ג'},
+ gen(){const w=pick(WORDS)();return{html:`${w.t}<div class="ansline">תשובה: ${B}</div>`,ans:w.ans,ex:w.ex,hint:w.hint}},
+ explain({ex,hint,ans}){return[hint,`התרגיל: ${m(ex)}`,`התשובה: ${ans}`]}},
+];
+
+/* ---------- state ---------- */
+const LS='math-notebook-g3-v1';
+function blank(){return{v:1,name:'',placed:false,level:0,focus:null,allDone:false,recent:[],qCount:0,lastHelpAt:-99,helpLevel:-1,levels:{},updatedAt:0}}
+function loadLocal(){try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.v===1)return Object.assign(blank(),s)}catch(e){}return null}
+let S=loadLocal()||blank();
+let mode='welcome', cur=null, place=null, prevScreen='quiz', advTimer=null;
+const lv=id=>S.levels[id]||(S.levels[id]={done:false,stars:0,right:0,total:0,pts:0});
+const isMix=()=>mode!=='place'&&S.allDone&&S.focus==null;
+const ptsKey=()=>isMix()?'mix':LEVELS[cur.idx].id;
+
+/* ---------- saving: browser + private per-user store ---------- */
+let dbRef=null,writing=false,dirty=false,saveT=null;
+function save(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(dbRef){dirty=true;clearTimeout(saveT);saveT=setTimeout(flush,1200)}}
+async function flush(){if(!dbRef||writing||!dirty)return;writing=true;dirty=false;
+  try{await dbRef.set(JSON.parse(JSON.stringify(S)))}catch(e){if(e&&(e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted'))dbRef=null}
+  writing=false;if(dirty)flush()}
+async function connect(){
+  if(!window.claude||!window.claude.use)return;
+  try{
+    const user=await claude.use('user');const id=user?await user.id():null;const db=await claude.use('db');
+    if(!id||!db)return;
+    const ref=db.doc('data/users/'+id+'/math');const snap=await ref.get();dbRef=ref;
+    if(snap.exists){const r=snap.data();
+      if(r&&r.v===1&&(r.updatedAt||0)>(S.updatedAt||0)){S=Object.assign(blank(),JSON.parse(JSON.stringify(r)));try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+        if(mode==='welcome'&&S.placed){mode='practice';show('quiz');newQ()}else if(mode==='map')drawMap()}
+      else if((S.updatedAt||0)>(r.updatedAt||0)){dirty=true;flush()}}
+    else if(S.updatedAt){dirty=true;flush()}
+    drawSaveNote();
+  }catch(e){}
+}
+
+/* ---------- screens ---------- */
+const SCREENS=['welcome','quiz','result','help','map'];
+function show(name){SCREENS.forEach(s=>$('#'+s).hidden=s!==name);$('#mapBtn').hidden=!(S.placed&&(name==='quiz'||name==='help'||name==='result'))||mode==='place';
+  $('#brand').innerHTML='';const t=document.createTextNode(S.name?`המחברת של ${S.name}`:'מחברת חשבון');const sm=document.createElement('small');sm.textContent='חשבון · כיתה ג׳';$('#brand').append(t,sm);
+  window.scrollTo({top:0})}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,4200)}
+
+function qMarkup(q,fill){const inner=q.html.replace(B,fill);return q.ltr?`<div class="expr" dir="ltr">${inner}</div>`:`<div class="story">${inner}</div>`}
+
+function newQ(){
+  clearTimeout(advTimer);
+  const idx=mode==='place'?place.lvl:(S.focus!=null?S.focus:(S.allDone?rand(0,LEVELS.length-1):S.level));
+  cur={idx,q:LEVELS[idx].gen(),typed:'',tries:0,locked:false};
+  $('#qBody').innerHTML=qMarkup(cur.q,'<span class="blank empty" id="blank"></span>');
+  $('#fb').textContent='';$('#fb').className='fb';$('#reveal').hidden=true;$('#pad').hidden=false;
+  const tag=$('#qTag');
+  if(mode==='place'){tag.className='tag test';tag.textContent=`בדיקת רמה · שלב ${idx+1} מתוך ${LEVELS.length}`;$('#helpBtn').hidden=true}
+  else{tag.className='tag';tag.textContent=isMix()?`תרגול מעורב · ${LEVELS[idx].title}`:`שלב ${idx+1} · ${LEVELS[idx].title}`;$('#helpBtn').hidden=false}
+  drawProg();
+}
+function drawProg(){
+  const p=$('#prog');
+  if(mode==='place'){const pct=Math.round(100*place.lvl/LEVELS.length);p.innerHTML=`<div class="bar"><i style="width:${pct}%"></i></div><span class="cap">עונים בלי לחץ, כל תשובה עוזרת</span>`;return}
+  const pts=lv(ptsKey()).pts,left=GOAL-pts;
+  const what=isMix()?'לסבב הבא':(S.focus!=null&&S.focus!==S.level?'לסיום החזרה':'לשלב הבא');
+  p.innerHTML=`<div class="dots" aria-hidden="true">${Array.from({length:GOAL},(_,i)=>`<span class="dot${i<pts?' on':''}"></span>`).join('')}</div><span class="cap">עוד ${left} תשובות נכונות ${what}</span>`;
+}
+function setBlank(){const b=$('#blank');if(!b)return;b.textContent=cur.typed;b.classList.toggle('empty',!cur.typed)}
+
+function press(k){
+  if(!cur||$('#quiz').hidden)return;
+  if(cur.locked){if(k==='ok'&&!$('#reveal').hidden)next();return}
+  if(k==='back'){cur.typed=cur.typed.slice(0,-1)}
+  else if(k==='ok'){submit();return}
+  else if(cur.typed.length<4){cur.typed=(cur.typed==='0'?'':cur.typed)+k}
+  setBlank();
+}
+function submit(){
+  if(!cur.typed)return;
+  const ok=Number(cur.typed)===cur.q.ans, L=LEVELS[cur.idx], st=lv(L.id), b=$('#blank'), fb=$('#fb');
+  if(mode==='place'){
+    cur.locked=true;st.total++;if(ok)st.right++;place.asked++;if(ok)place.right++;
+    b.classList.add(ok?'right':'wrong');fb.className='fb '+(ok?'good':'bad');fb.textContent=ok?pick(PRAISE):`התשובה היא ${cur.q.ans}. ממשיכים!`;
+    save();advTimer=setTimeout(placeNext,ok?900:1800);return;
+  }
+  if(ok){
+    cur.locked=true;const P=lv(ptsKey());
+    if(cur.tries===0){P.pts++;st.right++}
+    st.total++;S.recent.push(cur.tries===0);S.recent=S.recent.slice(-10);S.qCount++;
+    b.classList.add('right');fb.className='fb good';fb.textContent=cur.tries===0?pick(PRAISE):'יפה! הפעם זה הצליח.';
+    drawProg();save();
+    advTimer=setTimeout(()=>{if(P.pts>=GOAL)levelUp();else next()},1000);
+  }else{
+    cur.tries++;
+    if(cur.tries===1){fb.className='fb try';fb.textContent='לא בדיוק. נסה שוב!';
+      const body=$('#qBody');body.classList.remove('shake');void body.offsetWidth;body.classList.add('shake');cur.typed='';setBlank();return}
+    cur.locked=true;const P=lv(ptsKey());P.pts=Math.max(0,P.pts-1);st.total++;S.recent.push(false);S.recent=S.recent.slice(-10);S.qCount++;
+    b.textContent=cur.q.ans;b.classList.remove('empty');b.classList.add('wrong');
+    fb.className='fb bad';fb.textContent=`התשובה הנכונה היא ${cur.q.ans}`;
+    $('#stepsList').innerHTML=L.explain(cur.q).map(s=>`<li>${s}</li>`).join('');
+    $('#reveal').hidden=false;$('#pad').hidden=true;drawProg();save();
+  }
+}
+function next(){
+  if(!isMix()&&mode==='practice'){
+    const lvl=cur?cur.idx:S.level;
+    const r4=S.recent.slice(-4).filter(x=>!x).length;
+    if(r4>=2&&S.qCount-S.lastHelpAt>=4){openHelp(true);return}
+    const r6=S.recent.slice(-6);
+    if(r6.length>=6&&r6.filter(x=>!x).length>=4&&S.helpLevel===lvl&&S.qCount-S.lastHelpAt>=4&&S.focus==null&&S.level>0){
+      S.level--;S.recent=[];lv(LEVELS[S.level].id).pts=Math.max(0,GOAL-3);save();
+      toast(`בוא נחזק קודם את "${LEVELS[S.level].title}", ואז נחזור לשלב הבא.`);
+    }
+  }
+  newQ();
+}
+function levelUp(){
+  const L=LEVELS[cur.idx],key=ptsKey(),st=lv(L.id);
+  const recentRate=S.recent.length?S.recent.filter(Boolean).length/S.recent.length:1;
+  const rate=key==='mix'?recentRate:(st.total?st.right/st.total:1);
+  const stars=rate>=.9?3:rate>=.7?2:1;
+  lv(key).pts=0;S.recent=[];let msg,title='עברת את השלב!';
+  if(key==='mix'){title='סבב מעורב הושלם!';msg='ממשיכים לתרגל מכל השלבים.'}
+  else{st.done=true;st.stars=Math.max(st.stars,stars);
+    if(S.focus!=null&&S.focus!==S.level){S.focus=null;title='החזרה הושלמה!';msg=`חוזרים לשלב שלך: ${LEVELS[S.level].title}`}
+    else{S.focus=null;
+      if(S.level<LEVELS.length-1){S.level++;msg=`השלב הבא: ${LEVELS[S.level].title}`}
+      else{S.allDone=true;title='סיימת את כל השלבים!';msg='מעכשיו יש תרגול מעורב מכל מה שלמדת.'}}}
+  save();
+  $('#celeStars').innerHTML=[0,1,2].map(i=>`<span${i<stars?'':' style="opacity:.2"'}>★</span>`).join('');
+  $('#celeTitle').textContent=title;$('#celeMsg').textContent=`${key==='mix'?'':L.title+' · '}${msg}`;
+  $('#cele').hidden=false;$('#celeGo').focus();
+}
+
+/* ---------- placement ---------- */
+function startPlacement(){
+  mode='placeIntro';Object.values(S.levels).forEach(s=>{s.done=false;s.stars=0;s.pts=0});
+  S.placed=false;S.level=0;S.focus=null;S.allDone=false;S.recent=[];S.lastHelpAt=-99;S.helpLevel=-1;save();
+  mode='place';place={lvl:0,asked:0,right:0};show('quiz');newQ();
+}
+function placeNext(){
+  const{asked,right}=place;let pass=null;
+  if(asked===2){if(right===2)pass=true;else if(right===0)pass=false}
+  else if(asked>=3)pass=right>=2;
+  if(pass===null){newQ();return}
+  if(pass){lv(LEVELS[place.lvl].id).done=true;place.lvl++;place.asked=0;place.right=0;
+    if(place.lvl>=LEVELS.length){finishPlacement(LEVELS.length-1,true);return}newQ();return}
+  finishPlacement(place.lvl,false);
+}
+function finishPlacement(idx,all){
+  S.placed=true;S.level=idx;S.allDone=all;mode='practice';save();
+  const passed=all?LEVELS.length:idx;
+  $('#resTitle').textContent=all?`וואו ${S.name}, עברת את כל השלבים!`:`${S.name}, מצאנו את השלב שלך`;
+  $('#resText').textContent=all?'נמשיך בתרגול מעורב כדי לשמור על כושר.':(passed?`עברת ${passed} שלבים בבדיקה. מתחילים לתרגל בשלב ${idx+1}: ${LEVELS[idx].title}.`:`מתחילים מההתחלה, בשלב 1: ${LEVELS[0].title}.`);
+  show('result');
+}
+
+/* ---------- help lesson ---------- */
+function openHelp(auto){
+  const idx=cur?cur.idx:S.level,L=LEVELS[idx];
+  const ex=cur&&cur.locked&&!$('#reveal').hidden?cur.q:L.gen();
+  S.lastHelpAt=S.qCount;S.helpLevel=idx;save();
+  $('#helpTitle').textContent=L.title;
+  $('#helpLead').textContent=auto?'נראה שהשלב הזה קצת מאתגר. בוא נלמד אותו ביחד, ואז נמשיך.':'הנה הסבר קצר על השלב הזה.';
+  $('#helpBody').innerHTML=L.lesson.body.map(p=>`<p>${p}</p>`).join('');
+  $('#helpEx').innerHTML=`<div class="exq">${qMarkup(ex,`<b class="filled">${ex.ans}</b>`)}</div><ol>${L.explain(ex).map(s=>`<li>${s}</li>`).join('')}</ol>`;
+  const search='https://www.youtube.com/results?search_query='+encodeURIComponent(L.lesson.q), v=VIDEOS[L.id];
+  $('#ytLink').href=v?'https://www.youtube.com/watch?v='+v.id:search;
+  $('#gLink').href=search;$('#gLink').hidden=!v;
+  $('#vidTitle').textContent=v?`הסרטון: "${v.title}" · ${v.by}`:'';
+  show('help');
+}
+
+/* ---------- map ---------- */
+function drawSaveNote(){$('#saveNote').textContent=dbRef?'ההתקדמות נשמרת בחשבון שלך ותחכה גם במכשיר אחר.':'ההתקדמות נשמרת בדפדפן הזה.'}
+function drawMap(){
+  $('#mapTitle').textContent=S.name?`מפת השלבים של ${S.name}`:'מפת השלבים';
+  const ol=$('#lvls');ol.innerHTML='';
+  LEVELS.forEach((L,i)=>{const st=S.levels[L.id]||{};
+    const now=!S.allDone&&i===S.level,done=!!st.done||i<S.level||S.allDone,open=done||now;
+    const li=document.createElement('li');const b=document.createElement('button');
+    b.className='lv'+(now?' now':done?' done':'');b.disabled=!open;
+    const stats=st.total?`${Math.round(100*st.right/st.total)}% נכון בניסיון ראשון · ${st.total} תרגילים`:(now?'השלב הנוכחי':done?'עבר בבדיקת הרמה':'עוד לא נפתח');
+    const stars=st.stars?`<span class="stars" aria-label="${st.stars} כוכבים">${'★'.repeat(st.stars)}<span class="off">${'★'.repeat(3-st.stars)}</span></span>`:(now?'<span class="tag">עכשיו</span>':'');
+    b.innerHTML=`<span class="n">${done&&!now?'✓':i+1}</span><span class="t"><b>${L.title}</b><span>${stats}</span></span>${stars}`;
+    if(open)b.onclick=()=>{S.focus=(i===S.level&&!S.allDone)?null:i;S.recent=[];save();mode='practice';show('quiz');newQ()};
+    li.append(b);ol.append(li)});
+  drawSaveNote();
+}
+
+/* ---------- wiring ---------- */
+$('#pad').addEventListener('click',e=>{const k=e.target.closest('[data-k]');if(k)press(k.dataset.k)});
+document.addEventListener('keydown',e=>{
+  if(!$('#cele').hidden){if(e.key==='Enter'){e.preventDefault();$('#celeGo').click()}return}
+  if($('#quiz').hidden||e.target.tagName==='INPUT')return;
+  if(/^[0-9]$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('back');else if(e.key==='Enter'){e.preventDefault();press('ok')}
+});
+$('#startBtn').onclick=()=>{S.name=($('#nameIn').value||'').trim().slice(0,20)||'אלוף';startPlacement()};
+$('#nameIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('#startBtn').click()});
+$('#resGo').onclick=()=>{mode='practice';show('quiz');newQ()};
+$('#nextBtn').onclick=next;
+$('#lessonBtn').onclick=()=>openHelp(false);
+$('#helpBtn').onclick=()=>openHelp(false);
+$('#helpDone').onclick=()=>{show('quiz');newQ()};
+$('#mapBtn').onclick=()=>{mode='map';drawMap();show('map')};
+$('#mapBack').onclick=()=>{mode='practice';show('quiz');newQ()};
+$('#retestBtn').onclick=()=>{$('#retestConfirm').hidden=false};
+$('#retestNo').onclick=()=>{$('#retestConfirm').hidden=true};
+$('#retestYes').onclick=()=>{$('#retestConfirm').hidden=true;startPlacement()};
+$('#celeGo').onclick=()=>{$('#cele').hidden=true;newQ()};
+
+if(S.placed){mode='practice';show('quiz');newQ()}else{show('welcome');if(S.name)$('#nameIn').value=S.name}
+connect();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(function(){});
+}
+</script>
+</body>
+</html>
