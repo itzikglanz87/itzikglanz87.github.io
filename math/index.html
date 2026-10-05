@@ -181,7 +181,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .kpi{border:1.5px solid var(--line); border-radius:14px; padding:10px 12px}
 .kpi b{display:block; font-family:var(--font-d); font-weight:600; font-size:1.5rem; font-variant-numeric:tabular-nums}
 .kpi span{font-size:.85rem; color:var(--muted); font-weight:600}
-.grow{display:grid; grid-template-columns:8.5em 1fr 3.2em; gap:10px; align-items:center; margin-block:6px; font-weight:600}
+.grow{display:grid; grid-template-columns:minmax(0,8em) minmax(0,1fr) 2.8em; gap:10px; align-items:center; margin-block:6px; font-weight:600}
+.grow .bar{min-width:0}
 .grow .bar i{background:var(--good)}
 .grow em{font-style:normal; font-variant-numeric:tabular-nums; color:var(--muted); text-align:end}
 .verdict{background:var(--pen-soft); border-radius:14px; padding:12px 16px; margin-block:16px}
@@ -755,14 +756,14 @@ function drawReport(){
   const rated=LEVELS.map(x=>({x,st:S.levels[x.id]})).filter(o=>o.st&&o.st.total>=8);
   const strong=rated.filter(o=>o.st.right/o.st.total>=.9).map(o=>`<span class="chip good">${o.x.title}</span>`).join('');
   const weak=rated.filter(o=>o.st.right/o.st.total<.7).map(o=>`<span class="chip bad">${o.x.title} · ${Math.round(100*o.st.right/o.st.total)}%</span>`).join('');
-  const EV={up:'עבר שלב',down:'חזר לחזק',place:'בדיקת רמה: התחיל ב'};
-  const hist=S.history.slice(-8).reverse().map(h=>{const lvx=LEVELS.find(x=>x.id===h.lvl);return`<li>${h.d.slice(8)}.${h.d.slice(5,7)} · ${EV[h.ev]||h.ev}${h.ev==='place'?'':':'} ${lvx?lvx.title:h.lvl}</li>`}).join('');
+  const EV={up:'עבר שלב',down:'חזר לחזק',place:'בדיקת רמה, נקודת התחלה'};
+  const hist=S.history.slice(-8).reverse().map(h=>{const lvx=LEVELS.find(x=>x.id===h.lvl);return`<li>${h.d.slice(8)}.${h.d.slice(5,7)} · ${EV[h.ev]||h.ev}: ${lvx?lvx.title:h.lvl}</li>`}).join('');
   const table=LEVELS.map((x,i)=>{const st=S.levels[x.id]||{},status=(!S.allDone&&i===S.level)?'עכשיו':isDone(i)?'✓':'—';
     return`<tr><td>${i+1}. ${x.title}</td><td>${status}</td><td class="num">${st.total?Math.round(100*st.right/st.total)+'%':''}</td><td class="num">${st.total||''}</td></tr>`}).join('');
   const sync=window.MATH_FIREBASE&&S.key?`<p class="note">קוד הדוח (לשליחה ל-Claude לדוח השבועי): <span class="code" id="keyTxt">${S.key}</span> <button class="linkbtn" id="copyKey">העתקה</button>${cloudAt?' · עודכן בענן':''}</p>`:'';
   box.innerHTML=`<span class="tag">דוח הורים</span>
     <h2>${esc(S.name||'')}</h2>
-    <p class="sub">${S.allDone?'סיים את כל 24 השלבים, בתרגול מעורב':`שלב ${S.level+1} מתוך ${LEVELS.length}: ${L.title} (${GRADE_NAME[L.g]})`}</p>
+    <p class="sub">${S.allDone?'סיים את כל 24 השלבים, בתרגול מעורב':`שלב ${S.level+1} מתוך ${LEVELS.length}: ${L.title} · ${GRADE_NAME[L.g]}`}</p>
     ${rows}
     <div class="verdict">${verdict()}</div>
     <h3>7 הימים האחרונים</h3>
