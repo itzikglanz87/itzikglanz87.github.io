@@ -780,7 +780,8 @@ function drawReport(){
   const ago=S.updatedAt?Math.floor((Date.now()-S.updatedAt)/60000):null;
   const seenTxt=ago==null?'עוד לא תרגל':ago<10?'מתרגל עכשיו':ago<60?`תרגל לפני ${ago} דקות`:new Date(S.updatedAt).toDateString()===new Date().toDateString()?`תרגל היום ב-${new Date(S.updatedAt).toTimeString().slice(0,5)}`:`תרגל לאחרונה ב-${new Date(S.updatedAt).toLocaleDateString('he-IL')}`;
   const curPts=S.allDone?null:((S.levels[L.id]||{}).pts||0);
-  const sync=!ADMIN&&window.MATH_FIREBASE&&S.key?`<p class="note">קוד הדוח (לשליחה ל-Claude לדוח השבועי): <span class="code" id="keyTxt">${S.key}</span> <button class="linkbtn" id="copyKey">העתקה</button>${cloudAt?' · עודכן בענן':''}</p>`:'';
+  const adminUrl=new URL('admin.html#'+S.key,location.href).href;
+  const sync=!ADMIN&&window.MATH_FIREBASE&&S.key?`<div class="verdict"><b>לוח הורים בטלפון שלכם</b><br>העתיקו את הקישור ושלחו אותו לעצמכם (למשל בוואטסאפ). הוא פותח את הסטטוס של ${esc(S.name||'הילד')} בכל זמן, מכל מכשיר.<p style="margin:.5em 0 0"><span class="code" id="keyTxt" style="word-break:break-all">${adminUrl}</span></p><button class="btn" id="copyKey" style="margin-top:8px">העתקת הקישור</button></div><p class="note">קוד הדוח: <span class="code">${S.key}</span>${cloudAt?' · עודכן בענן':''}</p>`:'';
   box.innerHTML=`<span class="tag">דוח הורים</span>
     <h2>${esc(S.name||'')}</h2>
     <p style="margin:0 0 4px"><span class="seen${ago!=null&&ago<10?' live':''}">${seenTxt}</span></p>
@@ -806,7 +807,7 @@ function drawReport(){
     ${sync}
     <div class="after" style="justify-content:flex-start">${ADMIN?'<button class="btn ghost" id="repBack">חיבור לקוד אחר</button>':'<button class="btn primary" id="repBack">חזרה למפה</button>'}</div>`;
   $('#repBack').onclick=ADMIN?()=>{try{localStorage.removeItem(AK)}catch(e){}if(unsub)unsub();adminKeyForm('')}:()=>{mode='map';drawMap();show('map')};
-  const cp=$('#copyKey');if(cp)cp.onclick=()=>{const t=S.key;try{navigator.clipboard.writeText(t).then(()=>toast('הקוד הועתק'),()=>selKey())}catch(e){selKey()}};
+  const cp=$('#copyKey');if(cp)cp.onclick=()=>{try{navigator.clipboard.writeText(adminUrl).then(()=>toast('הקישור הועתק'),()=>selKey())}catch(e){selKey()}};
 }
 function selKey(){const r=document.createRange();r.selectNodeContents($('#keyTxt'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);toast('סמנו והעתיקו את הקוד')}
 function openParent(){mode='parent';$('#pinBox').hidden=false;$('#repBox').hidden=true;$('#pinErr').hidden=true;$('#pinIn').value='';
