@@ -9,6 +9,15 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<script>window.MATH_FIREBASE = {
+    apiKey: "AIzaSyC6jrNqzjqPZLmva-OvrYBQltrThEoR1d4",
+    authDomain: "analytics-2bf94.firebaseapp.com",
+    projectId: "analytics-2bf94",
+    storageBucket: "analytics-2bf94.firebasestorage.app",
+    messagingSenderId: "608346890313",
+    appId: "1:608346890313:web:1fc83f52a8ae299d4a9f98",
+    measurementId: "G-9NHMF7RGB7"
+  };</script>
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -161,6 +170,34 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .cele p{color:var(--muted); margin:.3em 0 1em}
 @keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
 .toast{position:fixed; inset-inline:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); margin:auto; max-width:520px; background:var(--ink); color:var(--paper); padding:12px 16px; border-radius:14px; font-weight:700; text-align:center; z-index:9}
+.fr{display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; font-family:var(--font-d); font-weight:600; line-height:1.05; margin-inline:.15em; direction:ltr}
+.fr span:first-child{border-bottom:2px solid currentColor; padding-inline:.15em}
+.lvls .gh{font-size:.8rem; font-weight:700; letter-spacing:.06em; color:var(--muted); padding-block:8px 0}
+
+/* parent report */
+.rep h2{font-family:var(--font-d); font-weight:600; font-size:1.5rem; margin:4px 0 2px}
+.rep .sub{color:var(--muted); margin:0 0 14px}
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-block:10px 16px}
+.kpi{border:1.5px solid var(--line); border-radius:14px; padding:10px 12px}
+.kpi b{display:block; font-family:var(--font-d); font-weight:600; font-size:1.5rem; font-variant-numeric:tabular-nums}
+.kpi span{font-size:.85rem; color:var(--muted); font-weight:600}
+.grow{display:grid; grid-template-columns:8.5em 1fr 3.2em; gap:10px; align-items:center; margin-block:6px; font-weight:600}
+.grow .bar i{background:var(--good)}
+.grow em{font-style:normal; font-variant-numeric:tabular-nums; color:var(--muted); text-align:end}
+.verdict{background:var(--pen-soft); border-radius:14px; padding:12px 16px; margin-block:16px}
+.verdict b{color:var(--pen)}
+.rep h3{font-size:1rem; margin:18px 0 6px}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{border-radius:999px; padding:.15em .75em; font-weight:700; font-size:.9rem}
+.chip.good{background:var(--good-soft); color:var(--good)}
+.chip.bad{background:var(--red-soft); color:var(--red)}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse; width:100%; font-size:.92rem}
+.tbl th,.tbl td{text-align:start; padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap}
+.tbl td.num{font-variant-numeric:tabular-nums}
+.pinrow{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-block:12px}
+.pinrow input{font:inherit; font-size:1.3rem; letter-spacing:.3em; width:7em; padding:.45em .6em; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); text-align:center}
+.code{font-family:ui-monospace,Consolas,monospace; font-size:1.05rem; background:var(--pen-soft); padding:.2em .6em; border-radius:8px; user-select:all}
 @media (prefers-reduced-motion: reduce){ .shake,.cele .big span{animation:none} .bar i{transition:none} }
 @media (max-width:420px){ .page{padding:18px 44px 18px 16px} .page::before{inset-inline-start:28px} }
 </style>
@@ -186,7 +223,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
       <input id="nameIn" type="text" autocomplete="off" maxlength="20" placeholder="השם שלך">
       <button class="btn primary big" id="startBtn">מתחילים בבדיקת רמה</button>
     </div>
-    <p class="note">16 שלבים: חיבור וחיסור, לוח הכפל, חילוק, ערך המקום, שברים, סדר פעולות ובעיות מילוליות.</p>
+    <p class="note">24 שלבים: חזרה על כיתה ב׳, כל נושאי החשבון של כיתה ג׳, ושלבי העשרה מכיתה ד׳.</p>
   </section>
 
   <!-- quiz -->
@@ -243,6 +280,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
     <div class="maptools">
       <button class="btn primary" id="mapBack">חזרה לתרגול</button>
       <button class="btn ghost" id="retestBtn">בדיקת רמה מחדש</button>
+      <button class="btn ghost" id="parentBtn">להורים</button>
     </div>
     <div class="confirm" id="retestConfirm" hidden style="margin-top:10px">
       <span>הבדיקה תתחיל מהשלב הראשון והכוכבים יתאפסו.</span>
@@ -250,6 +288,22 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
       <button class="btn ghost" id="retestNo">ביטול</button>
     </div>
     <p class="note" id="saveNote"></p>
+  </section>
+
+  <!-- parent report -->
+  <section id="parent" class="page rep" hidden>
+    <div id="pinBox">
+      <span class="tag">להורים</span>
+      <h2 id="pinTitle" style="margin-top:8px"></h2>
+      <p class="sub" id="pinText"></p>
+      <div class="pinrow">
+        <input id="pinIn" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="קוד הורים">
+        <button class="btn primary" id="pinGo">כניסה</button>
+        <button class="btn ghost" id="pinBack">חזרה</button>
+      </div>
+      <p class="fb bad" id="pinErr" hidden></p>
+    </div>
+    <div id="repBox" hidden></div>
   </section>
 </div>
 
@@ -289,7 +343,16 @@ const VIDEOS={
  divrem:{id:'h-JM_hSTgZY',title:'חילוק עם שארית',by:'קרנפים לומדים חשבון'},
  order:{id:'uV_1H7-cmFA',title:'מה זה סדר פעולות חשבון?',by:'et-lilmod'},
  words:{id:'IsXHujh4WmM',title:'איך פותרים בעיות מילוליות',by:'הדס פוקס'},
+ place10k:{id:'PAaSYBcdu_8',title:'מבנה המספר העשרוני עד הרבבה',by:'אתר תרגילים'},
+ as10k:{id:'77RY4Vcw6ko',title:'חיבור וחיסור מספרים רב ספרתיים',by:'לומדים בכיף'},
+ mul2x1:{id:'sw_wlijd_yY',title:'כפל במאונך (דו ספרתי בחד ספרתי)',by:'ללמוד אחרת'},
+ mul100:{id:'udgMjab9k48',title:'כפל בעשרות ובמאות שלמות',by:'אני10'},
+ longdiv:{id:'QRARCUskUgI',title:'איך לפתור תרגילים בחילוק ארוך שלב אחרי שלב',by:'et-lilmod'},
+ fracq:{id:'-Z2rrBO-e5M',title:'שבר כחלק מכמות',by:'עשר אצבעות (Matific)'},
+ area:{id:'ERnFq4TJMLw',title:'איך מחשבים שטח והיקף של ריבוע ומלבן',by:'et-lilmod'},
+ words2:{id:'gqBR9FmrX4o',title:'שאלות מילוליות דו שלביות',by:'אני10'},
 };
+const GRADE_NAME={2:'כיתה ב׳ (חזרה)',3:'כיתה ג׳',4:'כיתה ד׳ (העשרה)'};
 const PRAISE=['כל הכבוד!','מצוין!','יפה מאוד!','בדיוק!','אלוף!','נכון!','מעולה!','איזה יופי!'];
 
 function jumpAdd(x,u){ // x + u, crossing a ten if needed
@@ -396,12 +459,90 @@ const LEVELS=[
  gen(){const w=pick(WORDS)();return{html:`${w.t}<div class="ansline">תשובה: ${B}</div>`,ans:w.ans,ex:w.ex,hint:w.hint}},
  explain({ex,hint,ans}){return[hint,`התרגיל: ${m(ex)}`,`התשובה: ${ans}`]}},
 ];
+const GRADE={add20:2,sub20:2,add100:2,sub100:2,add100c:2,sub100b:2,mul1:2,mul:3,div:3,place:3,as1000:3,multens:3,frac:3,divrem:3,order:3,words:3};
+LEVELS.forEach(L=>L.g=GRADE[L.id]);
+
+/* ---------- grade 4 (enrichment) ---------- */
+const NAMES=['יחידות','עשרות','מאות','אלפים'];
+const dig=(n,i)=>Math.floor(n/10**i)%10;
+const fr=(n,d)=>`<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+function colAdd(a,b){const s=[];let c=0;
+  for(let i=0;i<4;i++){const x=dig(a,i),y=dig(b,i),t=x+y+c;
+    let line=`${NAMES[i]}: ${m(c?`${x} + ${y} + 1 = ${t}`:`${x} + ${y} = ${t}`)}`;
+    if(t>=10&&i<3)line+=`, כותבים ${t-10} ומעבירים 1 ל${NAMES[i+1]}`;
+    s.push(line);c=t>=10?1:0}
+  s.push(`התשובה: ${m(`${a} + ${b} = ${a+b}`)}`);return s}
+function colSub(a,b){const s=[];let br=0;
+  for(let i=0;i<4;i++){const x=dig(a,i)-br,y=dig(b,i),pre=br?`(אחרי הפריטה נשאר ${x}) `:'';
+    if(x<y){s.push(`${NAMES[i]}: ${pre}${x} קטן מ-${y}, אז פורטים מה${NAMES[i+1]}: ${m(`${x+10} − ${y} = ${x+10-y}`)}`);br=1}
+    else{s.push(`${NAMES[i]}: ${pre}${m(`${x} − ${y} = ${x-y}`)}`);br=0}}
+  s.push(`התשובה: ${m(`${a} − ${b} = ${a-b}`)}`);return s}
+const WORDS2=[
+ ()=>{const n=rand(2,5),p=rand(3,9),a=n*p+rand(5,40);return{t:`לרון היו ${a} שקלים. הוא קנה ${n} מחברות, כל מחברת ב-${p} שקלים. כמה שקלים נשארו לרון?`,ans:a-n*p,steps:[`קודם: כמה עלו המחברות? ${m(`${n} × ${p} = ${n*p}`)}`,`אחר כך: כמה נשאר? ${m(`${a} − ${n*p} = ${a-n*p}`)}`]}},
+ ()=>{const s=rand(3,8),k=rand(10,25),g=rand(5,s*k-10);return{t:`בספרייה יש ${s} מדפים, ובכל מדף ${k} ספרים. ${g} ספרים הושאלו. כמה ספרים נשארו בספרייה?`,ans:s*k-g,steps:[`כמה ספרים היו? ${m(`${s} × ${k} = ${s*k}`)}`,`כמה נשארו? ${m(`${s*k} − ${g} = ${s*k-g}`)}`]}},
+ ()=>{const x=rand(5,15),d=rand(3,6),y=rand(5,30);return{t:`מיכל קראה ${x} עמודים בכל יום במשך ${d} ימים, וביום האחרון קראה עוד ${y} עמודים. כמה עמודים קראה מיכל בסך הכול?`,ans:x*d+y,steps:[`${d} ימים של ${x} עמודים: ${m(`${x} × ${d} = ${x*d}`)}`,`ועוד היום האחרון: ${m(`${x*d} + ${y} = ${x*d+y}`)}`]}},
+ ()=>{const b=rand(2,4),per=rand(15,30),tc=rand(2,b*2),t=b*per-tc;return{t:`${t} תלמידים ו-${tc} מורים יצאו לטיול. הם התחלקו שווה בשווה ל-${b} אוטובוסים. כמה אנשים נסעו בכל אוטובוס?`,ans:per,steps:[`כמה אנשים בסך הכול? ${m(`${t} + ${tc} = ${b*per}`)}`,`מחלקים לאוטובוסים: ${m(`${b*per} : ${b} = ${per}`)}`]}},
+ ()=>{const a=rand(4,12),k=rand(2,5);return{t:`בקופסה יש ${a} עפרונות אדומים, ופי ${k} עפרונות כחולים. כמה עפרונות יש בקופסה בסך הכול?`,ans:a+a*k,steps:[`"פי ${k}" זה כפל: ${m(`${a} × ${k} = ${a*k}`)} עפרונות כחולים`,`ביחד: ${m(`${a} + ${a*k} = ${a+a*k}`)}`]}},
+];
+LEVELS.push(
+{id:'place10k',title:'המספרים עד 10,000',g:4,
+ lesson:{body:[`במספר ארבע-ספרתי יש אלפים, מאות, עשרות ויחידות.`,`ב-4725 יש 4 אלפים, 7 מאות, 2 עשרות ו-5 יחידות: ${m('4725 = 4000 + 700 + 20 + 5')}.`],q:'מבנה עשרוני עד 10000 לילדים'},
+ gen(){const n=rand(1001,9999),ds=[dig(n,3),dig(n,2),dig(n,1),dig(n,0)];
+  if(Math.random()<.5){const k=rand(0,3),nm=['אלפים','מאות','עשרות','יחידות'][k];return{html:`מה ספרת ה${nm} במספר ${m(n)}?<div class="ansline">תשובה: ${B}</div>`,ans:ds[k],n,ds,pos:nm}}
+  const parts=[ds[0]*1000,ds[1]*100,ds[2]*10,ds[3]],k=rand(0,3),ans=parts[k];parts[k]=B;return{ltr:1,html:`${n} = ${parts.join(' + ')}`,ans,n,ds}},
+ explain({n,ds,pos,ans}){return[`ב-${n} יש ${ds[0]} אלפים, ${ds[1]} מאות, ${ds[2]} עשרות ו-${ds[3]} יחידות`,m(`${n} = ${ds[0]*1000} + ${ds[1]*100} + ${ds[2]*10} + ${ds[3]}`),pos?`ספרת ה${pos} היא ${ans}`:`החלק החסר הוא ${ans}`]}},
+{id:'as10k',title:'חיבור וחיסור במאונך',g:4,
+ lesson:{body:[`מספרים גדולים מחברים ומחסרים במאונך: כותבים אחד מתחת לשני, יחידות מתחת ליחידות, ומתחילים מהיחידות.`,`בחיבור, כשהסכום בטור עובר 10, מעבירים 1 לטור הבא. בחיסור, כשהספרה למעלה קטנה מדי, פורטים מהטור שמשמאל.`],q:'חיבור וחיסור במאונך ארבע ספרתיים'},
+ gen(){if(Math.random()<.5){const a=rand(1000,6999),b=rand(1000,9999-a);return{ltr:1,html:`${a} + ${b} = ${B}`,ans:a+b,a,b,op:'+'}}
+  const a=1000*rand(3,9)+100*rand(1,9)+10*rand(1,9)+rand(1,9),b=rand(1000,a-500);return{ltr:1,html:`${a} − ${b} = ${B}`,ans:a-b,a,b,op:'-'}},
+ explain({a,b,op}){return op==='+'?colAdd(a,b):colSub(a,b)}},
+{id:'mul2x1',title:'כפל דו-ספרתי בחד-ספרתי',g:4,
+ lesson:{body:[`מפרקים את המספר הדו-ספרתי לעשרות ויחידות, כופלים כל חלק, ומחברים.`,`${m('34 × 6')}: ${m('30 × 6 = 180')}, ${m('4 × 6 = 24')}, ${m('180 + 24 = 204')}.`],q:'כפל דו ספרתי בחד ספרתי'},
+ gen(){const a=rand(12,99),b=rand(3,9);return{ltr:1,html:`${a} × ${b} = ${B}`,ans:a*b,a,b}},
+ explain({a,b}){const t=a-a%10,u=a%10,s=[`מפרקים: ${m(`${a} = ${t} + ${u}`)}`,m(`${t} × ${b} = ${t*b}`)];
+  if(u){s.push(m(`${u} × ${b} = ${u*b}`));s.push(`מחברים: ${m(`${t*b} + ${u*b} = ${a*b}`)}`)}else s.push(`התשובה: ${a*b}`);return s}},
+{id:'mul100',title:'כפל בעשרות ובמאות',g:4,
+ lesson:{body:[`פותרים את התרגיל בלי האפסים, ובסוף מוסיפים את כל האפסים.`,`${m('40 × 30')}: ${m('4 × 3 = 12')}, ויש שני אפסים, אז 1200. ${m('6 × 200')}: ${m('6 × 2 = 12')}, ועוד שני אפסים: 1200.`],q:'כפל בעשרות ובמאות שלמות'},
+ gen(){const x=rand(2,9),y=rand(2,9);let a,b;if(Math.random()<.5){a=x*10;b=y*10}else{a=x;b=y*100}if(Math.random()<.5)[a,b]=[b,a];return{ltr:1,html:`${a} × ${b} = ${B}`,ans:a*b,x,y,a,b}},
+ explain({x,y,a,b,ans}){return[`מורידים את האפסים: ${m(`${x} × ${y} = ${x*y}`)}`,`ב-${a} וב-${b} יש ביחד 2 אפסים`,`מוסיפים 2 אפסים ל-${x*y}: ${ans}`]}},
+{id:'longdiv',title:'חילוק ארוך',g:4,
+ lesson:{body:[`כשמחלקים מספר גדול, מפרקים אותו לחלקים שקל לחלק.`,`${m('96 : 4')}: ${m('96 = 80 + 16')}, ${m('80 : 4 = 20')}, ${m('16 : 4 = 4')}, וביחד 24.`],q:'חילוק ארוך לילדים'},
+ gen(){const b=rand(2,9),k=rand(12,99);return{ltr:1,html:`${b*k} : ${b} = ${B}`,ans:k,a:b*k,b}},
+ explain({a,b,ans}){const c=Math.floor(a/(b*10))*b*10,r=a-c,s=[`מפרקים לחלקים שמתחלקים ב-${b}: ${m(`${a} = ${c} + ${r}`)}`,m(`${c} : ${b} = ${c/b}`)];
+  if(r){s.push(m(`${r} : ${b} = ${r/b}`));s.push(`מחברים: ${m(`${c/b} + ${r/b} = ${ans}`)}`)}return s}},
+{id:'fracq',title:'שבר מכמות',g:4,
+ lesson:{body:[`המספר למטה בשבר אומר לכמה חלקים שווים מחלקים, והמספר למעלה אומר כמה חלקים לוקחים.`,`${fr(3,4)} מ-20: קודם רבע אחד (${m('20 : 4 = 5')}), ואז 3 רבעים (${m('5 × 3 = 15')}).`],q:'שבר מכמות לילדים'},
+ gen(){const d=pick([3,4,5,6,8,10]),n=rand(2,d-1),k=rand(2,10);return{html:`כמה זה ${fr(n,d)} מ-${d*k}?<div class="ansline">תשובה: ${B}</div>`,ans:n*k,n,d,k}},
+ explain({n,d,k}){return[`מחלקים ל-${d} חלקים שווים: ${m(`${d*k} : ${d} = ${k}`)}`,`לוקחים ${n} חלקים: ${m(`${k} × ${n} = ${n*k}`)}`]}},
+{id:'area',title:'היקף ושטח של מלבן',g:4,
+ lesson:{body:[`היקף הוא האורך של כל הגבול מסביב: מחברים את כל הצלעות. שטח הוא כמה משבצות של סנטימטר על סנטימטר יש בפנים: אורך כפול רוחב.`,`מלבן 5 על 3: היקף ${m('5 + 3 + 5 + 3 = 16')} ס״מ, שטח ${m('5 × 3 = 15')} סמ״ר.`],q:'היקף ושטח מלבן לילדים'},
+ gen(){const a=rand(3,12),b=rand(2,a-1),kind=rand(0,3),A=`<div class="ansline">תשובה: ${B}</div>`;
+  if(kind===0)return{html:`מלבן שאורכו ${a} ס״מ ורוחבו ${b} ס״מ. מה השטח שלו (בסמ״ר)?${A}`,ans:a*b,a,b,kind};
+  if(kind===1)return{html:`מלבן שאורכו ${a} ס״מ ורוחבו ${b} ס״מ. מה ההיקף שלו (בס״מ)?${A}`,ans:2*(a+b),a,b,kind};
+  if(kind===2)return{html:`לריבוע יש צלע של ${a} ס״מ. מה ההיקף שלו (בס״מ)?${A}`,ans:4*a,a,b,kind};
+  return{html:`השטח של מלבן הוא ${a*b} סמ״ר, והאורך שלו ${a} ס״מ. מה הרוחב שלו (בס״מ)?${A}`,ans:b,a,b,kind}},
+ explain({a,b,kind}){
+  if(kind===0)return[`שטח מלבן = אורך × רוחב`,`${m(`${a} × ${b} = ${a*b}`)} סמ״ר`];
+  if(kind===1)return[`היקף: מחברים את כל 4 הצלעות`,`${m(`${a} + ${b} + ${a} + ${b} = ${2*(a+b)}`)} ס״מ`];
+  if(kind===2)return[`לריבוע יש 4 צלעות שוות`,`${m(`${a} × 4 = ${4*a}`)} ס״מ`];
+  return[`שטח = אורך × רוחב, אז שואלים ${m(`${a} × ? = ${a*b}`)}`,`${m(`${a*b} : ${a} = ${b}`)} ס״מ`]}},
+{id:'words2',title:'בעיות דו-שלביות',g:4,
+ lesson:{body:[`בבעיה דו-שלבית פותרים שני תרגילים: קודם מגלים משהו שלא כתוב בשאלה, ובעזרתו עונים.`,`טיפ: כותבים מה יודעים, מה שואלים, ומה צריך לגלות קודם.`],q:'בעיות מילוליות דו שלביות'},
+ gen(){const w=pick(WORDS2)();return{html:`${w.t}<div class="ansline">תשובה: ${B}</div>`,ans:w.ans,steps:w.steps}},
+ explain({steps,ans}){return[...steps,`התשובה: ${ans}`]}},
+);
 
 /* ---------- state ---------- */
 const LS='math-notebook-g3-v1';
-function blank(){return{v:1,name:'',placed:false,level:0,focus:null,allDone:false,recent:[],qCount:0,lastHelpAt:-99,helpLevel:-1,levels:{},updatedAt:0}}
+function blank(){return{v:1,name:'',placed:false,level:0,focus:null,allDone:false,recent:[],qCount:0,lastHelpAt:-99,helpLevel:-1,levels:{},days:{},history:[],key:'',pin:'',updatedAt:0}}
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let qStart=Date.now();
+function track(first){const k=today(),d=S.days[k]||(S.days[k]={q:0,r:0,t:0});d.q++;if(first)d.r++;d.t+=Math.min(90,Math.round((Date.now()-qStart)/1000));
+  const ks=Object.keys(S.days).sort();while(ks.length>120)delete S.days[ks.shift()]}
+function logEv(ev,idx){S.history.push({d:today(),ev,lvl:LEVELS[idx].id});if(S.history.length>200)S.history=S.history.slice(-200)}
 function loadLocal(){try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.v===1)return Object.assign(blank(),s)}catch(e){}return null}
 let S=loadLocal()||blank();
+if(S.allDone&&S.level<LEVELS.length-1){S.allDone=false;S.level++} /* new levels were added after he finished */
 let mode='welcome', cur=null, place=null, prevScreen='quiz', advTimer=null;
 const lv=id=>S.levels[id]||(S.levels[id]={done:false,stars:0,right:0,total:0,pts:0});
 const isMix=()=>mode!=='place'&&S.allDone&&S.focus==null;
@@ -409,7 +550,20 @@ const ptsKey=()=>isMix()?'mix':LEVELS[cur.idx].id;
 
 /* ---------- saving: browser + private per-user store ---------- */
 let dbRef=null,writing=false,dirty=false,saveT=null;
-function save(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(dbRef){dirty=true;clearTimeout(saveT);saveT=setTimeout(flush,1200)}}
+function save(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(dbRef){dirty=true;clearTimeout(saveT);saveT=setTimeout(flush,1200)}
+  if(cloudPush){clearTimeout(cloudT);cloudT=setTimeout(cloudPush,3000)}}
+/* phone build only: build.py sets window.MATH_FIREBASE. Progress goes to Firestore math/<key> so the parent report can be read from elsewhere. */
+let cloudPush=null,cloudT=null,cloudAt=0;
+async function cloud(){
+  const C=window.MATH_FIREBASE;if(!C)return;
+  if(!S.key){const A='abcdefghjkmnpqrstuvwxyz23456789';S.key=Array.from(crypto.getRandomValues(new Uint8Array(14)),b=>A[b%A.length]).join('');save()}
+  try{const V='https://www.gstatic.com/firebasejs/10.12.5/';
+    const[fa,fb,ff]=await Promise.all([import(V+'firebase-app.js'),import(V+'firebase-auth.js'),import(V+'firebase-firestore.js')]);
+    const app=fa.initializeApp(C,'math');await fb.signInAnonymously(fb.getAuth(app));const fs=ff.getFirestore(app);
+    cloudPush=()=>{const c=JSON.parse(JSON.stringify(S));delete c.pin;return ff.setDoc(ff.doc(fs,'math',S.key),{s:c,at:Date.now()}).then(()=>{cloudAt=Date.now()}).catch(()=>{})};
+    cloudPush();
+  }catch(e){}
+}
 async function flush(){if(!dbRef||writing||!dirty)return;writing=true;dirty=false;
   try{await dbRef.set(JSON.parse(JSON.stringify(S)))}catch(e){if(e&&(e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted'))dbRef=null}
   writing=false;if(dirty)flush()}
@@ -429,9 +583,9 @@ async function connect(){
 }
 
 /* ---------- screens ---------- */
-const SCREENS=['welcome','quiz','result','help','map'];
+const SCREENS=['welcome','quiz','result','help','map','parent'];
 function show(name){SCREENS.forEach(s=>$('#'+s).hidden=s!==name);$('#mapBtn').hidden=!(S.placed&&(name==='quiz'||name==='help'||name==='result'))||mode==='place';
-  $('#brand').innerHTML='';const t=document.createTextNode(S.name?`המחברת של ${S.name}`:'מחברת חשבון');const sm=document.createElement('small');sm.textContent='חשבון · כיתה ג׳';$('#brand').append(t,sm);
+  $('#brand').innerHTML='';const t=document.createTextNode(S.name?`המחברת של ${S.name}`:'מחברת חשבון');const sm=document.createElement('small');sm.textContent='חשבון · כיתה ג׳ ומעלה';$('#brand').append(t,sm);
   window.scrollTo({top:0})}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,4200)}
 
@@ -440,12 +594,12 @@ function qMarkup(q,fill){const inner=q.html.replace(B,fill);return q.ltr?`<div c
 function newQ(){
   clearTimeout(advTimer);
   const idx=mode==='place'?place.lvl:(S.focus!=null?S.focus:(S.allDone?rand(0,LEVELS.length-1):S.level));
-  cur={idx,q:LEVELS[idx].gen(),typed:'',tries:0,locked:false};
+  cur={idx,q:LEVELS[idx].gen(),typed:'',tries:0,locked:false};qStart=Date.now();
   $('#qBody').innerHTML=qMarkup(cur.q,'<span class="blank empty" id="blank"></span>');
   $('#fb').textContent='';$('#fb').className='fb';$('#reveal').hidden=true;$('#pad').hidden=false;
   const tag=$('#qTag');
   if(mode==='place'){tag.className='tag test';tag.textContent=`בדיקת רמה · שלב ${idx+1} מתוך ${LEVELS.length}`;$('#helpBtn').hidden=true}
-  else{tag.className='tag';tag.textContent=isMix()?`תרגול מעורב · ${LEVELS[idx].title}`:`שלב ${idx+1} · ${LEVELS[idx].title}`;$('#helpBtn').hidden=false}
+  else{tag.className='tag';tag.textContent=isMix()?`תרגול מעורב · ${LEVELS[idx].title}`:`שלב ${idx+1} · ${GRADE_NAME[LEVELS[idx].g].split(' ')[0]} ${GRADE_NAME[LEVELS[idx].g].split(' ')[1]} · ${LEVELS[idx].title}`;$('#helpBtn').hidden=false}
   drawProg();
 }
 function drawProg(){
@@ -462,21 +616,21 @@ function press(k){
   if(cur.locked){if(k==='ok'&&!$('#reveal').hidden)next();return}
   if(k==='back'){cur.typed=cur.typed.slice(0,-1)}
   else if(k==='ok'){submit();return}
-  else if(cur.typed.length<4){cur.typed=(cur.typed==='0'?'':cur.typed)+k}
+  else if(cur.typed.length<5){cur.typed=(cur.typed==='0'?'':cur.typed)+k}
   setBlank();
 }
 function submit(){
   if(!cur.typed)return;
   const ok=Number(cur.typed)===cur.q.ans, L=LEVELS[cur.idx], st=lv(L.id), b=$('#blank'), fb=$('#fb');
   if(mode==='place'){
-    cur.locked=true;st.total++;if(ok)st.right++;place.asked++;if(ok)place.right++;
+    cur.locked=true;st.total++;if(ok)st.right++;place.asked++;if(ok)place.right++;track(ok);
     b.classList.add(ok?'right':'wrong');fb.className='fb '+(ok?'good':'bad');fb.textContent=ok?pick(PRAISE):`התשובה היא ${cur.q.ans}. ממשיכים!`;
     save();advTimer=setTimeout(placeNext,ok?900:1800);return;
   }
   if(ok){
     cur.locked=true;const P=lv(ptsKey());
     if(cur.tries===0){P.pts++;st.right++}
-    st.total++;S.recent.push(cur.tries===0);S.recent=S.recent.slice(-10);S.qCount++;
+    st.total++;S.recent.push(cur.tries===0);S.recent=S.recent.slice(-10);S.qCount++;track(cur.tries===0);
     b.classList.add('right');fb.className='fb good';fb.textContent=cur.tries===0?pick(PRAISE):'יפה! הפעם זה הצליח.';
     drawProg();save();
     advTimer=setTimeout(()=>{if(P.pts>=GOAL)levelUp();else next()},1000);
@@ -484,7 +638,7 @@ function submit(){
     cur.tries++;
     if(cur.tries===1){fb.className='fb try';fb.textContent='לא בדיוק. נסה שוב!';
       const body=$('#qBody');body.classList.remove('shake');void body.offsetWidth;body.classList.add('shake');cur.typed='';setBlank();return}
-    cur.locked=true;const P=lv(ptsKey());P.pts=Math.max(0,P.pts-1);st.total++;S.recent.push(false);S.recent=S.recent.slice(-10);S.qCount++;
+    cur.locked=true;const P=lv(ptsKey());P.pts=Math.max(0,P.pts-1);st.total++;S.recent.push(false);S.recent=S.recent.slice(-10);S.qCount++;track(false);
     b.textContent=cur.q.ans;b.classList.remove('empty');b.classList.add('wrong');
     fb.className='fb bad';fb.textContent=`התשובה הנכונה היא ${cur.q.ans}`;
     $('#stepsList').innerHTML=L.explain(cur.q).map(s=>`<li>${s}</li>`).join('');
@@ -498,7 +652,7 @@ function next(){
     if(r4>=2&&S.qCount-S.lastHelpAt>=4){openHelp(true);return}
     const r6=S.recent.slice(-6);
     if(r6.length>=6&&r6.filter(x=>!x).length>=4&&S.helpLevel===lvl&&S.qCount-S.lastHelpAt>=4&&S.focus==null&&S.level>0){
-      S.level--;S.recent=[];lv(LEVELS[S.level].id).pts=Math.max(0,GOAL-3);save();
+      S.level--;S.recent=[];logEv('down',S.level);lv(LEVELS[S.level].id).pts=Math.max(0,GOAL-3);save();
       toast(`בוא נחזק קודם את "${LEVELS[S.level].title}", ואז נחזור לשלב הבא.`);
     }
   }
@@ -509,7 +663,7 @@ function levelUp(){
   const recentRate=S.recent.length?S.recent.filter(Boolean).length/S.recent.length:1;
   const rate=key==='mix'?recentRate:(st.total?st.right/st.total:1);
   const stars=rate>=.9?3:rate>=.7?2:1;
-  lv(key).pts=0;S.recent=[];let msg,title='עברת את השלב!';
+  lv(key).pts=0;S.recent=[];let msg,title='עברת את השלב!';if(key!=='mix')logEv('up',cur.idx);
   if(key==='mix'){title='סבב מעורב הושלם!';msg='ממשיכים לתרגל מכל השלבים.'}
   else{st.done=true;st.stars=Math.max(st.stars,stars);
     if(S.focus!=null&&S.focus!==S.level){S.focus=null;title='החזרה הושלמה!';msg=`חוזרים לשלב שלך: ${LEVELS[S.level].title}`}
@@ -538,7 +692,7 @@ function placeNext(){
   finishPlacement(place.lvl,false);
 }
 function finishPlacement(idx,all){
-  S.placed=true;S.level=idx;S.allDone=all;mode='practice';save();
+  S.placed=true;S.level=idx;S.allDone=all;mode='practice';S.placeResult={d:today(),lvl:LEVELS[idx].id,all};logEv('place',idx);save();
   const passed=all?LEVELS.length:idx;
   $('#resTitle').textContent=all?`וואו ${S.name}, עברת את כל השלבים!`:`${S.name}, מצאנו את השלב שלך`;
   $('#resText').textContent=all?'נמשיך בתרגול מעורב כדי לשמור על כושר.':(passed?`עברת ${passed} שלבים בבדיקה. מתחילים לתרגל בשלב ${idx+1}: ${LEVELS[idx].title}.`:`מתחילים מההתחלה, בשלב 1: ${LEVELS[0].title}.`);
@@ -567,6 +721,7 @@ function drawMap(){
   $('#mapTitle').textContent=S.name?`מפת השלבים של ${S.name}`:'מפת השלבים';
   const ol=$('#lvls');ol.innerHTML='';
   LEVELS.forEach((L,i)=>{const st=S.levels[L.id]||{};
+    if(i===0||LEVELS[i-1].g!==L.g){const h=document.createElement('li');h.className='gh';h.textContent=GRADE_NAME[L.g];ol.append(h)}
     const now=!S.allDone&&i===S.level,done=!!st.done||i<S.level||S.allDone,open=done||now;
     const li=document.createElement('li');const b=document.createElement('button');
     b.className='lv'+(now?' now':done?' done':'');b.disabled=!open;
@@ -578,7 +733,70 @@ function drawMap(){
   drawSaveNote();
 }
 
+/* ---------- parent report ---------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const isDone=i=>{const st=S.levels[LEVELS[i].id];return !!(st&&st.done)||(S.placed&&i<S.level)||S.allDone};
+function dayKey(off){const d=new Date();d.setDate(d.getDate()-off);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function week(){let q=0,r=0,t=0,days=0;for(let i=0;i<7;i++){const d=S.days[dayKey(i)];if(d&&d.q){q+=d.q;r+=d.r;t+=d.t;days++}}return{q,r,t,days}}
+function verdict(){
+  if(!S.placed)return'עוד לא הושלמה בדיקת רמה.';
+  const tot=g=>LEVELS.filter(L=>L.g===g).length,cnt=g=>LEVELS.filter((L,i)=>L.g===g&&isDone(i)).length;
+  const g2=cnt(2),g3=cnt(3),g4=cnt(4);
+  if(g2<tot(2))return`<b>עדיין מחזק חומר של כיתה ב׳.</b> הוא שולט ב-${g2} מתוך ${tot(2)} נושאי החזרה. זה נפוץ בתחילת כיתה ג׳, ותרגול קבוע של כמה דקות ביום יעזור.`;
+  if(g3<tot(3))return`<b>מתקדם בחומר של כיתה ג׳.</b> סיים את החזרה על כיתה ב׳, ושולט ב-${g3} מתוך ${tot(3)} נושאי כיתה ג׳ שבאפליקציה.`;
+  if(g4<3)return`<b>סיים את כל נושאי החשבון של כיתה ג׳ שבאפליקציה.</b> אם זה קורה לפני סוף השנה, הוא מקדים את הכיתה. עכשיו הוא עובר לחומר העשרה של כיתה ד׳.`;
+  return`<b>מקדים את הכיתה בחשבון.</b> הוא פותר גם ${g4} מתוך ${tot(4)} נושאים של כיתה ד׳. כדאי לספר למורה ולשאול על העשרה או קבוצה מתקדמת.`;
+}
+function drawReport(){
+  $('#pinBox').hidden=true;const box=$('#repBox');box.hidden=false;
+  const w=week(),acc=w.q?Math.round(100*w.r/w.q):null,L=LEVELS[S.level];
+  const tot=g=>LEVELS.filter(x=>x.g===g).length,cnt=g=>LEVELS.filter((x,i)=>x.g===g&&isDone(i)).length;
+  const rows=[2,3,4].map(g=>{const c=cnt(g),t=tot(g);return`<div class="grow"><span>${GRADE_NAME[g]}</span><div class="bar"><i style="width:${Math.round(100*c/t)}%"></i></div><em>${c}/${t}</em></div>`}).join('');
+  const rated=LEVELS.map(x=>({x,st:S.levels[x.id]})).filter(o=>o.st&&o.st.total>=8);
+  const strong=rated.filter(o=>o.st.right/o.st.total>=.9).map(o=>`<span class="chip good">${o.x.title}</span>`).join('');
+  const weak=rated.filter(o=>o.st.right/o.st.total<.7).map(o=>`<span class="chip bad">${o.x.title} · ${Math.round(100*o.st.right/o.st.total)}%</span>`).join('');
+  const EV={up:'עבר שלב',down:'חזר לחזק',place:'בדיקת רמה: התחיל ב'};
+  const hist=S.history.slice(-8).reverse().map(h=>{const lvx=LEVELS.find(x=>x.id===h.lvl);return`<li>${h.d.slice(8)}.${h.d.slice(5,7)} · ${EV[h.ev]||h.ev}${h.ev==='place'?'':':'} ${lvx?lvx.title:h.lvl}</li>`}).join('');
+  const table=LEVELS.map((x,i)=>{const st=S.levels[x.id]||{},status=(!S.allDone&&i===S.level)?'עכשיו':isDone(i)?'✓':'—';
+    return`<tr><td>${i+1}. ${x.title}</td><td>${status}</td><td class="num">${st.total?Math.round(100*st.right/st.total)+'%':''}</td><td class="num">${st.total||''}</td></tr>`}).join('');
+  const sync=window.MATH_FIREBASE&&S.key?`<p class="note">קוד הדוח (לשליחה ל-Claude לדוח השבועי): <span class="code" id="keyTxt">${S.key}</span> <button class="linkbtn" id="copyKey">העתקה</button>${cloudAt?' · עודכן בענן':''}</p>`:'';
+  box.innerHTML=`<span class="tag">דוח הורים</span>
+    <h2>${esc(S.name||'')}</h2>
+    <p class="sub">${S.allDone?'סיים את כל 24 השלבים, בתרגול מעורב':`שלב ${S.level+1} מתוך ${LEVELS.length}: ${L.title} (${GRADE_NAME[L.g]})`}</p>
+    ${rows}
+    <div class="verdict">${verdict()}</div>
+    <h3>7 הימים האחרונים</h3>
+    <div class="kpis">
+      <div class="kpi"><b>${w.q}</b><span>תרגילים</span></div>
+      <div class="kpi"><b>${Math.round(w.t/60)}</b><span>דקות תרגול</span></div>
+      <div class="kpi"><b>${w.days}</b><span>ימים עם תרגול</span></div>
+      <div class="kpi"><b>${acc==null?'–':acc+'%'}</b><span>נכון בניסיון ראשון</span></div>
+    </div>
+    ${strong?`<h3>חזק ב:</h3><div class="chips">${strong}</div>`:''}
+    ${weak?`<h3>כדאי לחזק:</h3><div class="chips">${weak}</div>`:''}
+    ${hist?`<h3>אירועים אחרונים</h3><ul>${hist}</ul>`:''}
+    <h3>כל השלבים</h3>
+    <div class="tbl"><table><thead><tr><th>שלב</th><th>מצב</th><th>דיוק</th><th>תרגילים</th></tr></thead><tbody>${table}</tbody></table></div>
+    <p class="note">האפליקציה בודקת חשבון בלבד (לא גיאומטריה מלאה, הבנת הנקרא וכו׳), וההתאמה לכיתות היא לפי תוכנית הלימודים בקירוב. החלטה על מעבר כיתה או קבוצה מתקדמת עושים יחד עם בית הספר.</p>
+    ${sync}
+    <div class="after" style="justify-content:flex-start"><button class="btn primary" id="repBack">חזרה למפה</button></div>`;
+  $('#repBack').onclick=()=>{mode='map';drawMap();show('map')};
+  const cp=$('#copyKey');if(cp)cp.onclick=()=>{const t=S.key;try{navigator.clipboard.writeText(t).then(()=>toast('הקוד הועתק'),()=>selKey())}catch(e){selKey()}};
+}
+function selKey(){const r=document.createRange();r.selectNodeContents($('#keyTxt'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);toast('סמנו והעתיקו את הקוד')}
+function openParent(){mode='parent';$('#pinBox').hidden=false;$('#repBox').hidden=true;$('#pinErr').hidden=true;$('#pinIn').value='';
+  $('#pinTitle').textContent=S.pin?'הקלידו את קוד ההורים':'בחרו קוד הורים';
+  $('#pinText').textContent=S.pin?'הדוח מיועד להורים.':'4 ספרות שרק אתם יודעים, כדי שהדוח יישאר להורים.';
+  $('#pinGo').textContent=S.pin?'כניסה':'שמירה';show('parent');$('#pinIn').focus()}
+function pinGo(){const v=$('#pinIn').value.trim(),e=$('#pinErr');
+  if(!/^\d{4}$/.test(v)){e.textContent='צריך בדיוק 4 ספרות';e.hidden=false;return}
+  if(!S.pin){S.pin=v;save();drawReport()}else if(v===S.pin)drawReport();else{e.textContent='הקוד לא נכון';e.hidden=false;$('#pinIn').value=''}}
+
 /* ---------- wiring ---------- */
+$('#parentBtn').onclick=openParent;
+$('#pinGo').onclick=pinGo;
+$('#pinIn').addEventListener('keydown',e=>{if(e.key==='Enter')pinGo()});
+$('#pinBack').onclick=()=>{mode='map';drawMap();show('map')};
 $('#pad').addEventListener('click',e=>{const k=e.target.closest('[data-k]');if(k)press(k.dataset.k)});
 document.addEventListener('keydown',e=>{
   if(!$('#cele').hidden){if(e.key==='Enter'){e.preventDefault();$('#celeGo').click()}return}
@@ -601,6 +819,7 @@ $('#celeGo').onclick=()=>{$('#cele').hidden=true;newQ()};
 
 if(S.placed){mode='practice';show('quiz');newQ()}else{show('welcome');if(S.name)$('#nameIn').value=S.name}
 connect();
+cloud();
 </script>
 
 <script>

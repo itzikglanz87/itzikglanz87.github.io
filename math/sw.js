@@ -1,7 +1,7 @@
 /* Network first for the page, cache as fallback: updates land on the next
    open, and the app still opens with no signal. Fonts and YouTube are left
    to the network. */
-const VERSION = "math-b89affd423";
+const VERSION = "math-bee32128aa";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png"];
 self.addEventListener("install", e => {
